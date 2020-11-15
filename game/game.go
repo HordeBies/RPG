@@ -1,82 +1,80 @@
 package game
 
-import (
-	"bufio"
-	"fmt"
-	"os"
-)
-
 type GameUI interface {
-	Draw(*Level)
+	Draw(*Level, int)
 }
 
 type Tile rune
 
 const (
-	StoneWall Tile = '#'
-	DirtFloor Tile = '.'
-	Door      Tile = '|'
-	Blank     Tile = ' '
+	StoneWall     Tile = '#'
+	DirtFloor     Tile = '.'
+	Door          Tile = '|'
+	Blank         Tile = 0
+	MainCharacter Tile = 'P'
 )
 
-type Level struct {
-	Map [][]Tile
+type Grid struct {
+	Layers []Tile
 }
 
-func loadLevelFromFile(filename string) *Level {
-	file, err := os.Open(filename)
-	if err != nil {
-		panic(err)
+type Row struct {
+	x, y  int
+	Grids []Grid
+}
+
+type GridWorld struct {
+	Rows []Row
+}
+
+type Entity struct {
+	x, y int
+	tile Tile
+}
+
+type Player struct {
+	Entity
+}
+
+type Level struct {
+	GridWorld GridWorld
+	Map       [][]Tile
+	Player    Player
+}
+
+func (tile Tile) toString() string {
+	switch tile {
+	case StoneWall:
+		return "#"
+	case DirtFloor:
+		return "."
+	case Door:
+		return "|"
+	case Blank:
+		return " "
+	case MainCharacter:
+		return "P"
+	default:
+		panic("unknown toString tile")
 	}
-	defer file.Close()
-
-	scanner := bufio.NewScanner(file)
-	levelLines := make([]string, 0)
-	longestRow := 0
-	for scanner.Scan() {
-		levelLines = append(levelLines, scanner.Text())
-		if len(scanner.Text()) > longestRow {
-			longestRow = len(scanner.Text())
-		}
-	}
-
-	level := &Level{}
-	level.Map = make([][]Tile, len(levelLines))
-	for i := range level.Map {
-		level.Map[i] = make([]Tile, longestRow)
-	}
-
-	for y := 0; y < len(level.Map); y++ {
-		line := levelLines[y]
-		for x, c := range line {
-			switch c {
-			case ' ', '\t', '\n', '\r':
-				level.Map[y][x] = Blank
-			case '#':
-				level.Map[y][x] = StoneWall
-			case '|':
-				level.Map[y][x] = Door
-			case '.':
-				level.Map[y][x] = DirtFloor
-			default:
-				panic("unknown Mapping")
-
-			}
-
-		}
-	}
-
-	for y := 0; y < len(level.Map); y++ {
-		for x := 0; x < longestRow; x++ {
-			fmt.Print(level.Map[y][x], " ")
-		}
-		fmt.Println("")
-	}
-
-	return nil
 }
 
 func Run(ui GameUI) {
-	level := loadLevelFromFile("game/maps/level1.map")
-	ui.Draw(level)
+	level := &Level{}
+	level.loadLayersFromFile("level1", 2)
+	ui.Draw(level, 2)
+	// for _, row := range level.gridWorld.rows {
+	// 	for _, grid := range row.grids {
+	// 		if len(grid.layers) > 1 {
+	// 			fmt.Print("(")
+	// 			for _, layer := range grid.layers {
+	// 				fmt.Print(layer.toString())
+	// 			}
+	// 			fmt.Print(")")
+	// 		} else {
+	// 			fmt.Print(grid.layers[0].toString())
+	// 		}
+	// 	}
+	// 	fmt.Println("")
+	// }
 }
