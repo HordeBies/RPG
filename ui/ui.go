@@ -30,6 +30,7 @@ var currentState gameState = mainScreen
 var renderer *sdl.Renderer
 var textureAtlas *sdl.Texture
 var textureIndex map[game.Tile][]sdl.Rect
+var blackPixel *sdl.Texture
 
 type inputState struct {
 	leftButton      bool
@@ -195,6 +196,14 @@ type UI2d struct {
 }
 
 func createLayers(level *game.Level, ui *UI2d) {
+	for l := range ui.layers {
+		for y := range ui.layers[l].srcRect {
+			for x := range ui.layers[l].srcRect[y] {
+				ui.layers[l].srcRect[y][x] = nil
+				ui.layers[l].dstRect[y][x] = nil
+			}
+		}
+	}
 	gridWorld := level.GridWorld
 	for y, row := range gridWorld.Rows {
 		for x, grid := range row.Grids {
@@ -205,6 +214,10 @@ func createLayers(level *game.Level, ui *UI2d) {
 					ui.layers[i].dstRect[y][x] = &sdl.Rect{X: int32(x) * 32, Y: int32(y) * 32, W: 32, H: 32}
 
 					renderer.Copy(textureAtlas, ui.layers[0].srcRect[y][x], ui.layers[0].dstRect[y][x])
+				} else {
+					ui.layers[i].srcRect[y][x] = nil
+					ui.layers[i].dstRect[y][x] = nil
+
 				}
 			}
 		}
@@ -222,7 +235,7 @@ func determineToken(ui *UI2d) stateFunc {
 	}
 }
 
-func getBlackPixel() *sdl.Texture {
+func createBlackPixel() *sdl.Texture {
 	tex, err := renderer.CreateTexture(sdl.PIXELFORMAT_ABGR8888, sdl.TEXTUREACCESS_STATIC, 1, 1)
 	if err != nil {
 		panic(err)
@@ -237,6 +250,7 @@ func getBlackPixel() *sdl.Texture {
 }
 
 func (ui *UI2d) Draw(level *game.Level, layerCount int) {
+	globalLevel = level
 	var input inputState
 	input.updateMouseState()
 	input.currKeyState = sdl.GetKeyboardState()
@@ -248,7 +262,7 @@ func (ui *UI2d) Draw(level *game.Level, layerCount int) {
 	ui.layers = make([]layer, layerCount)
 	ui.input = &input
 	createLayers(level, ui)
-	blackPixel := getBlackPixel()
+	blackPixel = createBlackPixel()
 
 	for {
 		for event := sdl.PollEvent(); event != nil; event = sdl.PollEvent() {

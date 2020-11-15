@@ -1,5 +1,7 @@
 package game
 
+import "fmt"
+
 type GameUI interface {
 	Draw(*Level, int)
 }
@@ -40,6 +42,25 @@ type Level struct {
 	GridWorld GridWorld
 	Map       [][]Tile
 	Player    Player
+	LevelName string
+	MaxLayers int
+}
+
+func (gw *GridWorld) ToString() {
+	for y := range gw.Rows {
+		for x := range gw.Rows[y].Grids {
+			if len(gw.Rows[y].Grids[x].Layers) > 1 {
+				fmt.Print("(")
+				for l := range gw.Rows[y].Grids[x].Layers {
+					fmt.Print(gw.Rows[y].Grids[x].Layers[l])
+				}
+				fmt.Print(")")
+			} else if len(gw.Rows[y].Grids[x].Layers) == 1 {
+				fmt.Print(gw.Rows[y].Grids[x].Layers[0])
+			}
+		}
+		fmt.Println("")
+	}
 }
 
 func (tile Tile) toString() string {
@@ -61,7 +82,9 @@ func (tile Tile) toString() string {
 
 func Run(ui GameUI) {
 	level := &Level{}
-	level.loadLayersFromFile("level1", 2)
+	level.MaxLayers = 2
+	level.LevelName = "level1"
+	level.loadLayersFromFile()
 	ui.Draw(level, 2)
 	// for _, row := range level.gridWorld.rows {
 	// 	for _, grid := range row.grids {
