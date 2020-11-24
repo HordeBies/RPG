@@ -16,5 +16,4 @@ func main() {
 // ps. textures are created randomly within their scope
 //left click place(if possible such as wall and floor uses same layer but door is 1 layer above)
 //right click remove most upper layer
-// backspace revert changes to latest save
 // "s" save

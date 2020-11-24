@@ -17,7 +17,9 @@ const (
 )
 
 type Grid struct {
-	Layers []Tile
+	Layers     []Tile
+	Background Tile
+	Entity     []Tile
 }
 
 type Row struct {
