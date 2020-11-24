@@ -1,0 +1,10 @@
+This will be the Information tab
+And also this is purely for testing
+also more testing
+and more
+i should check for maximum character limit so that
+i can make new line whenever necessary.
+123456789111315171921232527293133353739414345474951535557596163
+
+
+Press ESC to return

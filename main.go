@@ -11,7 +11,8 @@ func main() {
 
 }
 
-//game currently starts in Build Menu
+//game currently starts in Main Menu
+// Play button leads user to Construction Menu(wip)
 //tools : 1 for dirt floor, 2 stone wall, 3 door, 4 mainCharacter(uses a placeholder texture)
 // ps. textures are created randomly within their scope
 //left click place(if possible such as wall and floor uses same layer but door is 1 layer above)
