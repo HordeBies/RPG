@@ -64,6 +64,7 @@ func (level *Level) loadLayersFromFile() {
 			longestRow = len(scanner.Text())
 		}
 	}
+	level.GridWorld = GridWorld{}
 	level.GridWorld.Rows = make([]Row, len(levelLines), 100)
 
 	for i, line := range levelLines {

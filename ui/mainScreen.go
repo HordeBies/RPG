@@ -1,7 +1,10 @@
 package ui
 
 import (
+	"bufio"
 	"fmt"
+	"os"
+	"unicode/utf8"
 
 	"github.com/veandco/go-sdl2/sdl"
 )
@@ -22,9 +25,11 @@ type button struct {
 }
 
 type mainMenuObj struct {
-	play    button
-	info    button
-	infoTab *sdl.Texture
+	play       button
+	info       button
+	infoTab    *sdl.Texture
+	infoStr    []*sdl.Texture
+	infoStrLen []int32
 }
 
 func createMainMenu(ui *UI2d) {
@@ -48,6 +53,27 @@ func createMainMenu(ui *UI2d) {
 	ui.mainMenu.info.str = getTextTexture("Info", sdl.Color{255, 255, 255, 0})
 	ui.mainMenu.info.dstRect = append(ui.mainMenu.info.dstRect, &sdl.Rect{(winWidth * .4) + 28*2, (winHeight * .8) + 5*2, 45 * 2, 20 * 2})
 
+	ui.mainMenu.infoTab = createOnePixel(0, 0, 0, 180)
+	ui.mainMenu.infoTab.SetBlendMode(sdl.BLENDMODE_BLEND)
+	ui.mainMenu.infoStr = append(ui.mainMenu.infoStr, getTextTexture("DenemeDeneme", sdl.Color{255, 255, 255, 255}))
+	ui.mainMenu.infoStrLen = append(ui.mainMenu.infoStrLen, 12)
+	//ui.mainMenu.infoStr[0].SetBlendMode(sdl.BLENDMODE_BLEND)
+
+	file, err := os.Open("ui/assets/mainMenuInfo.txt")
+	if err != nil {
+		panic(err)
+	}
+	defer file.Close()
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		ui.mainMenu.infoStrLen = append(ui.mainMenu.infoStrLen, int32(utf8.RuneCountInString(scanner.Text())))
+		if ui.mainMenu.infoStrLen[len(ui.mainMenu.infoStrLen)-1] != 0 {
+			ui.mainMenu.infoStr = append(ui.mainMenu.infoStr, getTextTexture(scanner.Text(), sdl.Color{255, 255, 255, 255}))
+		} else {
+			ui.mainMenu.infoStr = append(ui.mainMenu.infoStr, nil)
+		}
+	}
+
 }
 
 func drawMenuButtons(ui *UI2d) {
@@ -60,10 +86,6 @@ func drawMenuButtons(ui *UI2d) {
 	renderer.Copy(ui.mainMenu.info.str, nil, ui.mainMenu.info.dstRect[2])
 }
 
-func createInfo(ui *UI2d) {
-
-}
-
 func updateMenu(ui *UI2d) {
 	if !ui.mainMenu.play.isClicked && !ui.mainMenu.info.isClicked {
 		drawMenuButtons(ui)
@@ -71,7 +93,16 @@ func updateMenu(ui *UI2d) {
 		currentState = editScreen
 		ui.mainMenu.play.isClicked = false
 	} else if ui.mainMenu.info.isClicked {
-		ui.mainMenu.info.isClicked = false
+		renderer.Copy(ui.mainMenu.infoTab, nil, &sdl.Rect{winWidth * .1, winHeight * .1, winWidth * .8, winHeight * .8})
+		for i, infoStr := range ui.mainMenu.infoStr {
+			if ui.mainMenu.infoStrLen[i] != 0 {
+				renderer.Copy(infoStr, nil, &sdl.Rect{winWidth*.1 + 10, int32(winHeight*.1 + 10 + i*20), ui.mainMenu.infoStrLen[i] * 10, 20})
+			}
+		}
+		if ui.input.currKeyState[sdl.SCANCODE_ESCAPE] != 0 && ui.input.prevKeyState[sdl.SCANCODE_ESCAPE] == 0 {
+			ui.mainMenu.info.isClicked = false
+		}
+
 	}
 }
 

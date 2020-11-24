@@ -206,17 +206,19 @@ func determineToken(ui *UI2d) stateFunc {
 	}
 }
 
-func createBlackPixel() *sdl.Texture {
+func createOnePixel(r, g, b, a byte) *sdl.Texture {
 	tex, err := renderer.CreateTexture(sdl.PIXELFORMAT_ABGR8888, sdl.TEXTUREACCESS_STATIC, 1, 1)
+	tex.GetBlendMode()
 	if err != nil {
 		panic(err)
 	}
 	pixels := make([]byte, 4)
-	pixels[0] = 0
-	pixels[1] = 0
-	pixels[2] = 0
-	pixels[3] = 0
+	pixels[0] = r
+	pixels[1] = g
+	pixels[2] = b
+	pixels[3] = a
 	tex.Update(nil, pixels, 4)
+
 	return tex
 }
 
@@ -240,7 +242,7 @@ func (ui *UI2d) Draw(level *game.Level, layerCount int) {
 	ui.layers = make([]layer, layerCount)
 	ui.input = &input
 	createLayers(level, ui)
-	blackPixel = createBlackPixel()
+	blackPixel = createOnePixel(0, 0, 0, 0)
 
 	for {
 		for event := sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
