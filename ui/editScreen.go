@@ -51,13 +51,13 @@ func addToGridWorld(x, y, l int, tile game.Tile) {
 	}
 	gridX := len(globalLevel.GridWorld.Rows[y].Grids)
 	for gridX < x+1 {
-		globalLevel.GridWorld.Rows[y].Grids = append(globalLevel.GridWorld.Rows[y].Grids, game.Grid{})
+		globalLevel.GridWorld.Rows[y].Grids = append(globalLevel.GridWorld.Rows[y].Grids, game.Grid{Layers: []game.Tile{}})
 		gridX++
 	}
 	gridL := len(globalLevel.GridWorld.Rows[y].Grids[x].Layers)
-	if gridL == 0 || globalLevel.GridWorld.Rows[y].Grids[x].Layers == nil {
+	/*	if gridL == 0 || globalLevel.GridWorld.Rows[y].Grids[x].Layers == nil {
 		globalLevel.GridWorld.Rows[y].Grids[x].Layers = make([]game.Tile, l+1)
-	}
+	}*/
 	for gridL < l+1 {
 		globalLevel.GridWorld.Rows[y].Grids[x].Layers = append(globalLevel.GridWorld.Rows[y].Grids[x].Layers, game.Blank)
 		gridL++
@@ -70,9 +70,6 @@ func editMenu(ui *UI2d) stateFunc {
 	if ui.input.currKeyState[sdl.SCANCODE_S] == 0 && ui.input.prevKeyState[sdl.SCANCODE_S] != 0 {
 		game.Save(globalLevel)
 		fmt.Println("saving done")
-	}
-	if ui.input.currKeyState[sdl.SCANCODE_BACKSPACE] == 0 && ui.input.prevKeyState[sdl.SCANCODE_BACKSPACE] != 0 {
-		createLayers(globalLevel, ui)
 	}
 	checkEditingTileChange(ui)
 
@@ -96,6 +93,18 @@ func editMenu(ui *UI2d) stateFunc {
 				ui.layers[i].srcRect[y][x] = nil
 				globalLevel.GridWorld.Rows[y].Grids[x].Layers[i] = game.Blank
 				break
+			}
+		}
+	}
+
+	renderer.Copy(mainMenuBackground, nil, nil)
+	//renderer.Copy(blackPixel, nil, &sdl.Rect{0, 0, winWidth, winHeight})
+	for l := range ui.layers {
+		for y := 0; y < 100; y++ {
+			for x := 0; x < 100; x++ {
+				if ui.layers[l].dstRect[y][x] != nil {
+					renderer.Copy(textureAtlas, ui.layers[l].srcRect[y][x], ui.layers[l].dstRect[y][x])
+				}
 			}
 		}
 	}

@@ -27,7 +27,6 @@ func getTile(c rune) (t Tile) {
 
 func Save(level *Level) {
 	gw := level.GridWorld
-
 	for currLayer := 0; currLayer < level.MaxLayers; currLayer++ {
 		file, err := os.OpenFile("game/maps/"+level.LevelName+"Layer"+strconv.Itoa(currLayer+1)+".map", os.O_RDWR, 0644)
 		if err != nil {

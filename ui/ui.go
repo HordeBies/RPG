@@ -7,7 +7,6 @@ import (
 	"os"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/BiesGo/sdlWorkSpace/rpg/game"
 	"github.com/veandco/go-sdl2/sdl"
@@ -58,35 +57,6 @@ func (result *inputState) updateKeyboardState() {
 	for i := range result.currKeyState {
 		result.prevKeyState[i] = result.currKeyState[i]
 	}
-}
-
-func init() {
-	sdl.LogSetAllPriority(sdl.LOG_PRIORITY_VERBOSE)
-	err := sdl.Init(sdl.INIT_EVERYTHING)
-	if err != nil {
-		panic(err)
-	}
-	window, err := sdl.CreateWindow("RPG", sdl.WINDOWPOS_UNDEFINED, sdl.WINDOWPOS_UNDEFINED, int32(winWidth), int32(winHeight), sdl.WINDOW_SHOWN)
-	if err != nil {
-		panic(err)
-	}
-
-	renderer, err = sdl.CreateRenderer(window, -1, sdl.RENDERER_ACCELERATED)
-	if err != nil {
-		panic(err)
-	}
-
-	sdl.SetHint(sdl.HINT_RENDER_SCALE_QUALITY, "1")
-	/*explosionBytes, audioSpec := sdl.LoadWAV("29301__junggle__btn121.wav")
-	audioID, err := sdl.OpenAudioDevice("", false, audioSpec, nil, 0)
-	if err != nil {
-		panic(err)
-	}
-	defer sdl.FreeWAV(explosionBytes)*/
-	rand.Seed(time.Now().UTC().UnixNano())
-	textureAtlas = imgFileToTexture("ui/assets/tiles.png")
-	loadTextureIndex()
-
 }
 
 func loadTextureIndex() {
@@ -190,9 +160,10 @@ type mainCharacter struct {
 }
 
 type UI2d struct {
-	layers []layer
-	mc     mainCharacter
-	input  *inputState
+	layers   []layer
+	mc       mainCharacter
+	input    *inputState
+	mainMenu mainMenuObj
 }
 
 func createLayers(level *game.Level, ui *UI2d) {
@@ -249,7 +220,14 @@ func createBlackPixel() *sdl.Texture {
 	return tex
 }
 
+func getTextTexture(str string, color sdl.Color) *sdl.Texture {
+	textSurface, _ := font.RenderUTF8Solid(str, color)
+	textTexture, _ := renderer.CreateTextureFromSurface(textSurface)
+	return textTexture
+}
+
 func (ui *UI2d) Draw(level *game.Level, layerCount int) {
+	createMainMenu(ui)
 	globalLevel = level
 	var input inputState
 	input.updateMouseState()
@@ -257,7 +235,7 @@ func (ui *UI2d) Draw(level *game.Level, layerCount int) {
 	input.prevKeyState = make([]uint8, len(input.currKeyState))
 	input.updateKeyboardState()
 
-	currentState = editScreen
+	currentState = mainScreen
 
 	ui.layers = make([]layer, layerCount)
 	ui.input = &input
@@ -273,20 +251,8 @@ func (ui *UI2d) Draw(level *game.Level, layerCount int) {
 		}
 		determineToken(ui)
 
-		renderer.Copy(blackPixel, nil, &sdl.Rect{0, 0, winWidth, winHeight})
-		for l := range ui.layers {
-			for y := 0; y < 100; y++ {
-				for x := 0; x < 100; x++ {
-					if ui.layers[l].dstRect[y][x] != nil {
-						renderer.Copy(textureAtlas, ui.layers[l].srcRect[y][x], ui.layers[l].dstRect[y][x])
-					}
-				}
-			}
-		}
 		//fmt.Println(ui.layers[1].srcRect[0][0], ui.layers[1].dstRect[0][0])
 		renderer.Present()
-		//elapsedTime := time.Until(currTime).Milliseconds()
-		//fmt.Println("Ms:", elapsedTime)
 		sdl.Delay(16)
 		input.updateKeyboardState()
 		input.updateMouseState()
