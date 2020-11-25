@@ -2,7 +2,6 @@ package ui
 
 import (
 	"bufio"
-	"fmt"
 	"os"
 	"unicode/utf8"
 
@@ -90,7 +89,7 @@ func updateMenu(ui *UI2d) {
 	if !ui.mainMenu.play.isClicked && !ui.mainMenu.info.isClicked {
 		drawMenuButtons(ui)
 	} else if ui.mainMenu.play.isClicked {
-		currentState = editScreen
+		currentState = selectScreen
 		ui.mainMenu.play.isClicked = false
 	} else if ui.mainMenu.info.isClicked {
 		renderer.Copy(ui.mainMenu.infoTab, nil, &sdl.Rect{winWidth * .1, winHeight * .1, winWidth * .8, winHeight * .8})
@@ -110,7 +109,6 @@ func mainMenu(ui *UI2d) stateFunc {
 	renderer.Copy(mainMenuBackground, nil, nil)
 	updateMenu(ui)
 	if ui.input.leftButton && !ui.input.prevLeftButton {
-		fmt.Println("left clicked")
 		for i := 0; i < 2; i++ {
 			if ui.mainMenu.play.dstRect[i].HasIntersection(&sdl.Rect{int32(ui.input.x), int32(ui.input.y), 1, 1}) {
 				ui.mainMenu.play.isClicked = true
@@ -120,6 +118,5 @@ func mainMenu(ui *UI2d) stateFunc {
 			}
 		}
 	}
-
 	return determineToken
 }

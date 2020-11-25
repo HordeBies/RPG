@@ -1,9 +1,15 @@
 package game
 
-import "fmt"
+import (
+	"fmt"
+	"strconv"
+)
 
 type GameUI interface {
+	Init()
 	Draw(*Level, int)
+	SelectLevel() *Level
+	AddPreview(Level)
 }
 
 type Tile rune
@@ -11,7 +17,8 @@ type Tile rune
 const (
 	StoneWall     Tile = '#'
 	DirtFloor     Tile = '.'
-	Door          Tile = '|'
+	DoorC         Tile = '|'
+	DoorO         Tile = '-'
 	Blank         Tile = 0
 	MainCharacter Tile = 'P'
 )
@@ -19,7 +26,7 @@ const (
 type Grid struct {
 	Layers     []Tile
 	Background Tile
-	Entity     []Tile
+	Entities   []Tile
 }
 
 type Row struct {
@@ -36,14 +43,19 @@ type Entity struct {
 	tile Tile
 }
 
-type Player struct {
+type PlayerE struct {
 	Entity
+}
+
+type DoorE struct {
+	Entity
+	is_open bool
 }
 
 type Level struct {
 	GridWorld GridWorld
 	Map       [][]Tile
-	Player    Player
+	Player    PlayerE
 	LevelName string
 	MaxLayers int
 }
@@ -51,15 +63,7 @@ type Level struct {
 func (gw *GridWorld) ToString() {
 	for y := range gw.Rows {
 		for x := range gw.Rows[y].Grids {
-			if len(gw.Rows[y].Grids[x].Layers) > 1 {
-				fmt.Print("(")
-				for l := range gw.Rows[y].Grids[x].Layers {
-					fmt.Print(gw.Rows[y].Grids[x].Layers[l])
-				}
-				fmt.Print(")")
-			} else if len(gw.Rows[y].Grids[x].Layers) == 1 {
-				fmt.Print(gw.Rows[y].Grids[x].Layers[0])
-			}
+			fmt.Print(gw.Rows[y].Grids[x].Background.toString())
 		}
 		fmt.Println("")
 	}
@@ -71,8 +75,10 @@ func (tile Tile) toString() string {
 		return "#"
 	case DirtFloor:
 		return "."
-	case Door:
+	case DoorC:
 		return "|"
+	case DoorO:
+		return "-"
 	case Blank:
 		return " "
 	case MainCharacter:
@@ -82,24 +88,22 @@ func (tile Tile) toString() string {
 	}
 }
 
+func createPreviews(ui GameUI) {
+	for levelindex := 1; levelindex <= 2; levelindex++ {
+		level := Level{}
+		level.LevelName = "level" + strconv.Itoa(levelindex)
+		level.loadLevelFromFile()
+		ui.AddPreview(level)
+	}
+}
+
 func Run(ui GameUI) {
-	level := &Level{}
-	level.MaxLayers = 2
-	level.LevelName = "level1"
-	level.loadLayersFromFile()
+	ui.Init()
+	createPreviews(ui)
+	level := ui.SelectLevel()
+	if level == nil {
+		return
+	}
+	level.loadLevelFromFile()
 	ui.Draw(level, 2)
-	// for _, row := range level.gridWorld.rows {
-	// 	for _, grid := range row.grids {
-	// 		if len(grid.layers) > 1 {
-	// 			fmt.Print("(")
-	// 			for _, layer := range grid.layers {
-	// 				fmt.Print(layer.toString())
-	// 			}
-	// 			fmt.Print(")")
-	// 		} else {
-	// 			fmt.Print(grid.layers[0].toString())
-	// 		}
-	// 	}
-	// 	fmt.Println("")
-	// }
 }
