@@ -3,7 +3,6 @@ package game
 import (
 	"bufio"
 	"os"
-	"strconv"
 	"unicode/utf8"
 )
 
@@ -14,7 +13,9 @@ func getTile(c rune) (t Tile) {
 	case '#':
 		t = StoneWall
 	case '|':
-		t = Door
+		t = DoorC
+	case '-':
+		t = DoorO
 	case '.':
 		t = DirtFloor
 	case 'P':
@@ -27,29 +28,27 @@ func getTile(c rune) (t Tile) {
 
 func Save(level *Level) {
 	gw := level.GridWorld
-	for currLayer := 0; currLayer < level.MaxLayers; currLayer++ {
-		file, err := os.OpenFile("game/maps/"+level.LevelName+"Layer"+strconv.Itoa(currLayer+1)+".map", os.O_RDWR, 0644)
-		if err != nil {
-			panic(err)
-		}
-		for y := range gw.Rows {
-			for x := range gw.Rows[y].Grids {
-				if gw.Rows[y].Grids[x].Layers != nil && len(gw.Rows[y].Grids[x].Layers) > currLayer {
-					file.WriteString(gw.Rows[y].Grids[x].Layers[currLayer].toString())
-				} else {
-					file.WriteString(" ")
-				}
-			}
-			file.WriteString("\n")
-		}
-		file.Close()
+
+	file, err := os.OpenFile("game/maps/"+level.LevelName+".map", os.O_RDWR, 0644)
+	if err != nil {
+		panic(err)
 	}
+	for y := range gw.Rows {
+		for x := range gw.Rows[y].Grids {
+			if gw.Rows[y].Grids[x].Background != Blank {
+				file.WriteString(gw.Rows[y].Grids[x].Background.toString())
+			} else {
+				file.WriteString(" ")
+			}
+		}
+		file.WriteString("\n")
+	}
+	file.Close()
 }
 
-func (level *Level) loadLayersFromFile() {
+func (level *Level) loadLevelFromFile() {
 	filename := level.LevelName
-	layerCount := level.MaxLayers
-	file, err := os.Open("game/maps/" + filename + "Layer1.map")
+	file, err := os.Open("game/maps/" + filename + ".map")
 	if err != nil {
 		panic(err)
 	}
@@ -70,27 +69,27 @@ func (level *Level) loadLayersFromFile() {
 	for i, line := range levelLines {
 		level.GridWorld.Rows[i].Grids = make([]Grid, utf8.RuneCountInString(line), 100)
 		for j, c := range line {
-			level.GridWorld.Rows[i].Grids[j].Layers = append(level.GridWorld.Rows[i].Grids[j].Layers, getTile(c))
+			level.GridWorld.Rows[i].Grids[j].Background = getTile(c)
 		}
 	}
-
-	for i := 2; i <= layerCount; i++ {
-		layerfile, err := os.Open("game/maps/" + filename + "Layer" + strconv.Itoa(i) + ".map")
-		if err != nil {
-			panic(err)
-		}
-		layerscanner := bufio.NewScanner(layerfile)
-		layerLines := make([]string, 0)
-		for layerscanner.Scan() {
-			layerLines = append(layerLines, layerscanner.Text())
-		}
-		for i, line := range layerLines {
-			for j, c := range line {
-				currTile := getTile(c)
-				if currTile != Blank {
-					level.GridWorld.Rows[i].Grids[j].Layers = append(level.GridWorld.Rows[i].Grids[j].Layers, currTile)
+	/*
+		for i := 2; i <= layerCount; i++ {
+			layerfile, err := os.Open("game/maps/" + filename + "Layer" + strconv.Itoa(i) + ".map")
+			if err != nil {
+				panic(err)
+			}
+			layerscanner := bufio.NewScanner(layerfile)
+			layerLines := make([]string, 0)
+			for layerscanner.Scan() {
+				layerLines = append(layerLines, layerscanner.Text())
+			}
+			for i, line := range layerLines {
+				for j, c := range line {
+					currTile := getTile(c)
+					if currTile != Blank {
+						level.GridWorld.Rows[i].Grids[j].Layers = append(level.GridWorld.Rows[i].Grids[j].Layers, currTile)
+					}
 				}
 			}
-		}
-	}
+		}*/
 }

@@ -12,35 +12,6 @@ import (
 	"github.com/veandco/go-sdl2/sdl"
 )
 
-const winWidth, winHeight = 800, 600
-
-type stateFunc func(*UI2d) stateFunc
-
-type gameState int
-
-const (
-	mainScreen gameState = 0
-	editScreen gameState = 1
-	inGame     gameState = 2
-)
-
-var currentState gameState = mainScreen
-
-var renderer *sdl.Renderer
-var textureAtlas *sdl.Texture
-var textureIndex map[game.Tile][]sdl.Rect
-var blackPixel *sdl.Texture
-
-type inputState struct {
-	leftButton      bool
-	prevLeftButton  bool
-	rightButton     bool
-	prevRightButton bool
-	x, y            int
-	currKeyState    []uint8
-	prevKeyState    []uint8
-}
-
 func (result *inputState) updateMouseState() {
 	result.prevLeftButton = result.leftButton
 	result.prevRightButton = result.rightButton
@@ -144,54 +115,66 @@ func imgFileToTexture(filename string) *sdl.Texture {
 	return tex
 }
 
-type layer struct {
-	srcRect [100][100]*sdl.Rect
-	dstRect [100][100]*sdl.Rect
-}
-
-type entity struct {
-	x, y, layer int
-	srcRect     *sdl.Rect
-	dstRect     *sdl.Rect
-}
-
-type mainCharacter struct {
-	entity
-}
-
-type UI2d struct {
-	layers   []layer
-	mc       mainCharacter
-	input    *inputState
-	mainMenu mainMenuObj
-}
-
 func createLayers(level *game.Level, ui *UI2d) {
-	for l := range ui.layers {
-		for y := range ui.layers[l].srcRect {
-			for x := range ui.layers[l].srcRect[y] {
-				ui.layers[l].srcRect[y][x] = nil
-				ui.layers[l].dstRect[y][x] = nil
-			}
+
+	for y := range ui.background.srcRect {
+		for x := range ui.background.srcRect[y] {
+			ui.background.srcRect[y][x] = nil
+			ui.background.dstRect[y][x] = nil
 		}
 	}
+
 	gridWorld := level.GridWorld
 	for y, row := range gridWorld.Rows {
 		for x, grid := range row.Grids {
-			for i, layer := range grid.Layers {
-				if layer != game.Blank {
-					srcRects := textureIndex[layer]
-					ui.layers[i].srcRect[y][x] = &srcRects[rand.Intn(len(srcRects))]
-					ui.layers[i].dstRect[y][x] = &sdl.Rect{X: int32(x) * 32, Y: int32(y) * 32, W: 32, H: 32}
 
-					renderer.Copy(textureAtlas, ui.layers[0].srcRect[y][x], ui.layers[0].dstRect[y][x])
-				} else {
-					ui.layers[i].srcRect[y][x] = nil
-					ui.layers[i].dstRect[y][x] = nil
+			layer := grid.Background
+			if layer != game.Blank {
+				srcRects := textureIndex[layer]
+				ui.background.srcRect[y][x] = &srcRects[rand.Intn(len(srcRects))]
+				ui.background.dstRect[y][x] = &sdl.Rect{X: int32(x) * 32, Y: int32(y) * 32, W: 32, H: 32}
 
-				}
+				renderer.Copy(textureAtlas, ui.background.srcRect[y][x], ui.background.dstRect[y][x])
+			} else {
+				ui.background.srcRect[y][x] = nil
+				ui.background.dstRect[y][x] = nil
+
 			}
+
 		}
+
+	}
+}
+
+func (ui *UI2d) AddPreview(level game.Level) {
+	ui.levelPreviews = append(ui.levelPreviews, layer{})
+	index := len(ui.levelPreviews) - 1
+	for y := range ui.levelPreviews[index].srcRect {
+		for x := range ui.levelPreviews[index].srcRect[y] {
+			ui.levelPreviews[index].srcRect[y][x] = nil
+			ui.levelPreviews[index].dstRect[y][x] = nil
+		}
+	}
+
+	gridWorld := level.GridWorld
+	for y, row := range gridWorld.Rows {
+		for x, grid := range row.Grids {
+
+			layer := grid.Background
+			if layer != game.Blank {
+				srcRects := textureIndex[layer]
+				ui.levelPreviews[index].srcRect[y][x] = &srcRects[rand.Intn(len(srcRects))]
+				ui.levelPreviews[index].dstRect[y][x] = &sdl.Rect{X: 150 + int32(x)*32, Y: int32(y) * 32, W: 32, H: 32}
+
+				renderer.Copy(textureAtlas, ui.levelPreviews[index].srcRect[y][x], ui.levelPreviews[index].dstRect[y][x])
+			} else {
+				ui.levelPreviews[index].srcRect[y][x] = nil
+				ui.levelPreviews[index].dstRect[y][x] = nil
+
+			}
+
+		}
+
 	}
 }
 
@@ -199,8 +182,10 @@ func determineToken(ui *UI2d) stateFunc {
 	switch currentState {
 	case mainScreen:
 		return mainMenu(ui)
-	case editScreen:
+	case editLevel:
 		return editMenu(ui)
+	case selectScreen:
+		return selectMenu(ui)
 	default:
 		return nil
 	}
@@ -229,20 +214,11 @@ func getTextTexture(str string, color sdl.Color) *sdl.Texture {
 }
 
 func (ui *UI2d) Draw(level *game.Level, layerCount int) {
-	createMainMenu(ui)
 	globalLevel = level
-	var input inputState
-	input.updateMouseState()
-	input.currKeyState = sdl.GetKeyboardState()
-	input.prevKeyState = make([]uint8, len(input.currKeyState))
-	input.updateKeyboardState()
+	currentState = editLevel
+	ui.background = layer{}
 
-	currentState = mainScreen
-
-	ui.layers = make([]layer, layerCount)
-	ui.input = &input
 	createLayers(level, ui)
-	blackPixel = createOnePixel(0, 0, 0, 0)
 
 	for {
 		for event := sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
@@ -256,7 +232,29 @@ func (ui *UI2d) Draw(level *game.Level, layerCount int) {
 		//fmt.Println(ui.layers[1].srcRect[0][0], ui.layers[1].dstRect[0][0])
 		renderer.Present()
 		sdl.Delay(16)
-		input.updateKeyboardState()
-		input.updateMouseState()
+		ui.input.updateKeyboardState()
+		ui.input.updateMouseState()
+	}
+}
+
+func (ui *UI2d) SelectLevel() *game.Level {
+	currentState = mainScreen
+	globalLevel = nil
+
+	for {
+		for event := sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
+			switch event.(type) { // theEvent := event.(type) //remember this
+			case *sdl.QuitEvent:
+				return nil
+			}
+		}
+		determineToken(ui)
+		if globalLevel != nil {
+			return globalLevel
+		}
+		renderer.Present()
+		sdl.Delay(16)
+		ui.input.updateKeyboardState()
+		ui.input.updateMouseState()
 	}
 }
