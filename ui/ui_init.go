@@ -41,14 +41,14 @@ type inputState struct {
 }
 
 type layer struct {
-	srcRect [100][100]*sdl.Rect
-	dstRect [100][100]*sdl.Rect
+	srcRect  [100][100]*sdl.Rect
+	dstRect  [100][100]*sdl.Rect
+	entities []*entity
 }
 
 type entity struct {
-	x, y, layer int
-	srcRect     *sdl.Rect
-	dstRect     *sdl.Rect
+	x, y    int
+	srcRect *sdl.Rect
 }
 
 type mainCharacter struct {

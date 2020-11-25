@@ -26,7 +26,6 @@ const (
 type Grid struct {
 	Layers     []Tile
 	Background Tile
-	Entities   []Tile
 }
 
 type Row struct {
@@ -39,8 +38,8 @@ type GridWorld struct {
 }
 
 type Entity struct {
-	x, y int
-	tile Tile
+	X, Y int
+	Tile Tile
 }
 
 type PlayerE struct {
@@ -58,6 +57,7 @@ type Level struct {
 	Player    PlayerE
 	LevelName string
 	MaxLayers int
+	Entities  []Entity
 }
 
 func (gw *GridWorld) ToString() {

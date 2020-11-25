@@ -3,6 +3,8 @@ package game
 import (
 	"bufio"
 	"os"
+	"strconv"
+	"strings"
 	"unicode/utf8"
 )
 
@@ -44,6 +46,16 @@ func Save(level *Level) {
 		file.WriteString("\n")
 	}
 	file.Close()
+
+	entityFile, err := os.OpenFile("game/maps/"+level.LevelName+"Entities.map", os.O_RDWR, 0644)
+	if err != nil {
+		panic(err)
+	}
+	for _, obj := range level.Entities {
+		entityFile.WriteString(obj.Tile.toString() + " " + strconv.Itoa(obj.X) + "," + strconv.Itoa(obj.Y))
+		entityFile.WriteString("\n")
+	}
+	entityFile.Close()
 }
 
 func (level *Level) loadLevelFromFile() {
@@ -72,6 +84,26 @@ func (level *Level) loadLevelFromFile() {
 			level.GridWorld.Rows[i].Grids[j].Background = getTile(c)
 		}
 	}
+	entityFile, err := os.Open("game/maps/" + filename + "Entities.map")
+	if err != nil {
+		panic(err)
+	}
+	defer entityFile.Close()
+
+	entityScanner := bufio.NewScanner(entityFile)
+	for entityScanner.Scan() {
+		text := entityScanner.Text()
+		arr := strings.Split(text, " ")
+		currRune, _ := utf8.DecodeLastRuneInString(arr[0])
+		coords := strings.Split(arr[1], ",")
+		x, err1 := strconv.Atoi(coords[0])
+		y, err2 := strconv.Atoi(coords[1])
+		if err1 != nil || err2 != nil {
+			panic(err)
+		}
+		level.Entities = append(level.Entities, Entity{x, y, getTile(currRune)})
+	}
+
 	/*
 		for i := 2; i <= layerCount; i++ {
 			layerfile, err := os.Open("game/maps/" + filename + "Layer" + strconv.Itoa(i) + ".map")

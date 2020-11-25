@@ -144,6 +144,10 @@ func createLayers(level *game.Level, ui *UI2d) {
 		}
 
 	}
+	for _, obj := range level.Entities {
+		srcRect := textureIndex[obj.Tile]
+		ui.background.entities = append(ui.background.entities, &entity{obj.X, obj.Y, &srcRect[0]})
+	}
 }
 
 func (ui *UI2d) AddPreview(level game.Level) {
@@ -170,11 +174,14 @@ func (ui *UI2d) AddPreview(level game.Level) {
 			} else {
 				ui.levelPreviews[index].srcRect[y][x] = nil
 				ui.levelPreviews[index].dstRect[y][x] = nil
-
 			}
 
 		}
 
+	}
+	for _, obj := range level.Entities {
+		srcRect := textureIndex[obj.Tile]
+		ui.levelPreviews[index].entities = append(ui.levelPreviews[index].entities, &entity{obj.X, obj.Y, &srcRect[0]})
 	}
 }
 
