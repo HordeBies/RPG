@@ -53,14 +53,13 @@ type DoorE struct {
 
 type Level struct {
 	GridWorld GridWorld
-	Map       [][]Tile
 	Player    PlayerE
 	LevelName string
-	MaxLayers int
 	Entities  []Entity
 }
 
-func (gw *GridWorld) ToString() {
+func (level *Level) ToString() {
+	gw := level.GridWorld
 	for y := range gw.Rows {
 		for x := range gw.Rows[y].Grids {
 			fmt.Print(gw.Rows[y].Grids[x].Background.toString())
@@ -89,7 +88,7 @@ func (tile Tile) toString() string {
 }
 
 func createPreviews(ui GameUI) {
-	for levelindex := 1; levelindex <= 2; levelindex++ {
+	for levelindex := 1; levelindex <= 4; levelindex++ {
 		level := Level{}
 		level.LevelName = "level" + strconv.Itoa(levelindex)
 		level.loadLevelFromFile()

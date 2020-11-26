@@ -144,6 +144,7 @@ func createLayers(level *game.Level, ui *UI2d) {
 		}
 
 	}
+	ui.background.entities = ui.background.entities[0:0]
 	for _, obj := range level.Entities {
 		srcRect := textureIndex[obj.Tile]
 		ui.background.entities = append(ui.background.entities, &entity{obj.X, obj.Y, &srcRect[0]})
@@ -247,8 +248,9 @@ func (ui *UI2d) Draw(level *game.Level, layerCount int) {
 func (ui *UI2d) SelectLevel() *game.Level {
 	currentState = mainScreen
 	globalLevel = nil
-
+	//start := time.Now()
 	for {
+		//start = time.Now()
 		for event := sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
 			switch event.(type) { // theEvent := event.(type) //remember this
 			case *sdl.QuitEvent:
@@ -260,8 +262,9 @@ func (ui *UI2d) SelectLevel() *game.Level {
 			return globalLevel
 		}
 		renderer.Present()
-		sdl.Delay(16)
+
 		ui.input.updateKeyboardState()
 		ui.input.updateMouseState()
+		sdl.Delay(16)
 	}
 }
