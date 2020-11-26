@@ -43,16 +43,7 @@ type inputState struct {
 type layer struct {
 	srcRect  [100][100]*sdl.Rect
 	dstRect  [100][100]*sdl.Rect
-	entities []*entity
-}
-
-type entity struct {
-	x, y    int
-	srcRect *sdl.Rect
-}
-
-type mainCharacter struct {
-	entity
+	entities []interface{}
 }
 
 type UI2d struct {

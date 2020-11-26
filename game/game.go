@@ -42,18 +42,8 @@ type Entity struct {
 	Tile Tile
 }
 
-type PlayerE struct {
-	Entity
-}
-
-type DoorE struct {
-	Entity
-	is_open bool
-}
-
 type Level struct {
 	GridWorld GridWorld
-	Player    PlayerE
 	LevelName string
 	Entities  []Entity
 }

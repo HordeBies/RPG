@@ -82,8 +82,8 @@ func editMenu(ui *UI2d) stateFunc {
 			ui.background.dstRect[y][x] = &sdl.Rect{X: int32(x) * 32, Y: int32(y) * 32, W: 32, H: 32}
 			addToGridWorld(x, y, l, editingTile)
 		} else if l == 1 && !ui.input.prevLeftButton {
-			ui.background.entities = append(ui.background.entities, &entity{x * 32, y * 32, &textureIndex[editingTile][0]})
 			globalLevel.Entities = append(globalLevel.Entities, game.Entity{x * 32, y * 32, editingTile})
+			ui.background.entities = append(ui.background.entities, getEntity(globalLevel.Entities[len(globalLevel.Entities)-1]))
 		}
 
 	}
@@ -92,8 +92,9 @@ func editMenu(ui *UI2d) stateFunc {
 		x := int(math.Floor(float64(ui.input.x) / 32))
 		y := int(math.Floor(float64(ui.input.y) / 32))
 		if len(ui.background.entities) > 0 && !ui.input.prevRightButton {
-			for i, obj := range ui.background.entities {
-				if ui.input.x < obj.x+32 && ui.input.x >= obj.x && ui.input.y < obj.y+32 && ui.input.y >= obj.y {
+			for i, intf := range ui.background.entities {
+				obj := intf.(entityInterface)
+				if ui.input.x < obj.getX()+32 && ui.input.x >= obj.getX() && ui.input.y < obj.getY()+32 && ui.input.y >= obj.getY() {
 					if len(ui.background.entities) > 1 {
 						ui.background.entities = append(ui.background.entities[0:i], ui.background.entities[i+1:len(ui.background.entities)]...)
 						globalLevel.Entities = append(globalLevel.Entities[0:i], globalLevel.Entities[i+1:len(globalLevel.Entities)]...)
@@ -129,8 +130,9 @@ func editMenu(ui *UI2d) stateFunc {
 			}
 		}
 	}
-	for _, obj := range ui.background.entities {
-		renderer.Copy(textureAtlas, obj.srcRect, &sdl.Rect{int32(obj.x), int32(obj.y), 32, 32})
+	for _, intf := range ui.background.entities {
+		obj := intf.(entityInterface)
+		renderer.Copy(textureAtlas, obj.getRect(), &sdl.Rect{int32(obj.getX()), int32(obj.getY()), 32, 32})
 	}
 
 	return determineToken
@@ -218,8 +220,9 @@ func selectMenu(ui *UI2d) stateFunc {
 					}
 				}
 			}
-			for _, obj := range ui.levelPreviews[i].entities {
-				renderer.Copy(textureAtlas, obj.srcRect, &sdl.Rect{int32(obj.x + 150), int32(obj.y), 32, 32})
+			for _, intf := range ui.levelPreviews[i].entities {
+				obj := intf.(entityInterface)
+				renderer.Copy(textureAtlas, obj.getRect(), &sdl.Rect{int32(obj.getX() + 150), int32(obj.getY()), 32, 32})
 			}
 		}
 		renderer.Copy(level.texture, nil, level.rect)

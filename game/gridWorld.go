@@ -101,6 +101,7 @@ func (level *Level) loadLevelFromFile() {
 		if err1 != nil || err2 != nil {
 			panic(err)
 		}
+
 		level.Entities = append(level.Entities, Entity{x, y, getTile(currRune)})
 	}
 
