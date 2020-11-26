@@ -47,7 +47,7 @@ func Save(level *Level) {
 	}
 	file.Close()
 
-	entityFile, err := os.OpenFile("game/maps/"+level.LevelName+"Entities.map", os.O_RDWR, 0644)
+	entityFile, err := os.Create("game/maps/" + level.LevelName + "Entities.map")
 	if err != nil {
 		panic(err)
 	}
@@ -124,4 +124,12 @@ func (level *Level) loadLevelFromFile() {
 				}
 			}
 		}*/
+}
+
+func (level *Level) ReLoadTheLevel() *Level {
+	lName := level.LevelName
+	level = &Level{}
+	level.LevelName = lName
+	level.loadLevelFromFile()
+	return level
 }

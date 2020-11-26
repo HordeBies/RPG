@@ -87,28 +87,40 @@ func editMenu(ui *UI2d) stateFunc {
 		}
 
 	}
-	if ui.input.rightButton && !ui.input.prevRightButton { //&&
-		isDeleted := false
+	if ui.input.rightButton { //&&
+		//isDeleted := false
 		x := int(math.Floor(float64(ui.input.x) / 32))
 		y := int(math.Floor(float64(ui.input.y) / 32))
-		if len(ui.background.entities) > 0 {
+		if len(ui.background.entities) > 0 && !ui.input.prevRightButton {
 			for i, obj := range ui.background.entities {
 				if ui.input.x < obj.x+32 && ui.input.x >= obj.x && ui.input.y < obj.y+32 && ui.input.y >= obj.y {
-					ui.background.entities = append(ui.background.entities[0:i], ui.background.entities[i+1:len(ui.background.entities)]...)
-					globalLevel.Entities = append(globalLevel.Entities[0:i], globalLevel.Entities[i+1:len(globalLevel.Entities)]...)
-					isDeleted = true
+					if len(ui.background.entities) > 1 {
+						ui.background.entities = append(ui.background.entities[0:i], ui.background.entities[i+1:len(ui.background.entities)]...)
+						globalLevel.Entities = append(globalLevel.Entities[0:i], globalLevel.Entities[i+1:len(globalLevel.Entities)]...)
+					} else {
+						ui.background.entities = ui.background.entities[0:0]
+						globalLevel.Entities = globalLevel.Entities[0:0]
+					}
+					//isDeleted = true
 				}
 			}
 		}
-		if !isDeleted && ui.background.dstRect[y][x] != nil {
+		if ui.background.dstRect[y][x] != nil { //!isDeleted &&
 			ui.background.dstRect[y][x] = nil
 			ui.background.srcRect[y][x] = nil
 			globalLevel.GridWorld.Rows[y].Grids[x].Background = game.Blank
 		}
 	}
 
-	renderer.Copy(mainMenuBackground, nil, nil)
-	//renderer.Copy(blackPixel, nil, &sdl.Rect{0, 0, winWidth, winHeight})
+	if ui.input.currKeyState[sdl.SCANCODE_BACKSPACE] != 0 && ui.input.prevKeyState[sdl.SCANCODE_BACKSPACE] == 0 {
+		fmt.Println("Level Reloaded")
+		globalLevel = globalLevel.ReLoadTheLevel()
+		createLayers(globalLevel, ui)
+
+	}
+
+	//renderer.Copy(mainMenuBackground, nil, nil)
+	renderer.Copy(blackPixel, nil, &sdl.Rect{0, 0, winWidth, winHeight})
 
 	for y := 0; y < 100; y++ {
 		for x := 0; x < 100; x++ {
