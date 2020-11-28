@@ -26,11 +26,11 @@ func endMenuInit(ui *UI2d) {
 
 	ui.endMenu.returnToMainMenu = button{pos: pos{}, isClicked: false}
 	ui.endMenu.returnToMainMenu.srcRect = append(ui.endMenu.returnToMainMenu.srcRect, &sdl.Rect{310, 349, 25, 32})
-	ui.endMenu.returnToMainMenu.dstRect = append(ui.endMenu.returnToMainMenu.dstRect, &sdl.Rect{winWidth * .4, winHeight*.65 - 80, 25 * 2, 32 * 2})
+	ui.endMenu.returnToMainMenu.dstRect = append(ui.endMenu.returnToMainMenu.dstRect, &sdl.Rect{winWidth*.4 - 50, winHeight*.65 - 80, 25 * 2, 32 * 2})
 	ui.endMenu.returnToMainMenu.srcRect = append(ui.endMenu.returnToMainMenu.srcRect, &sdl.Rect{313, 381, 70, 25})
-	ui.endMenu.returnToMainMenu.dstRect = append(ui.endMenu.returnToMainMenu.dstRect, &sdl.Rect{winWidth*.4 + 24*2, winHeight*.65 - 80 + 3*2, 91 * 2, 25 * 2})
+	ui.endMenu.returnToMainMenu.dstRect = append(ui.endMenu.returnToMainMenu.dstRect, &sdl.Rect{winWidth*.4 + 24*2 - 50, winHeight*.65 - 80 + 3*2, 91 * 2, 25 * 2})
 	ui.endMenu.returnToMainMenu.str = getTextTexture("Main Menu", sdl.Color{255, 255, 255, 0})
-	ui.endMenu.returnToMainMenu.dstRect = append(ui.endMenu.returnToMainMenu.dstRect, &sdl.Rect{winWidth*.4 + 28*2, winHeight*.65 - 80 + 5*2, 81 * 2, 25 * 2})
+	ui.endMenu.returnToMainMenu.dstRect = append(ui.endMenu.returnToMainMenu.dstRect, &sdl.Rect{winWidth*.4 + 28*2 - 50, winHeight*.65 - 80 + 5*2, 81 * 2, 20 * 2})
 
 }
 
