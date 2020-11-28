@@ -20,6 +20,7 @@ const (
 	selectScreen gameState = 1
 	inGame       gameState = 2
 	editLevel    gameState = 3
+	endScreen    gameState = 4
 )
 
 var currentState gameState = mainScreen
@@ -70,7 +71,7 @@ func init() {
 	ttf.Init()
 	font, _ = ttf.OpenFont("ui/assets/OpenSans-Regular.ttf", 64)
 
-	sdl.LogSetAllPriority(sdl.LOG_PRIORITY_VERBOSE)
+	//sdl.LogSetAllPriority(sdl.LOG_PRIORITY_VERBOSE)
 	err := sdl.Init(sdl.INIT_EVERYTHING)
 	if err != nil {
 		panic(err)

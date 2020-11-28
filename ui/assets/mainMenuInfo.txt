@@ -1,10 +1,19 @@
-This will be the Information tab
-And also this is purely for testing
-also more testing
-and more
-i should check for maximum character limit so that
-i can make new line whenever necessary.
-123456789111315171921232527293133353739414345474951535557596163
+//game currently starts in Main Menu
+// Play button leads user to Selection Menu
+// Start button leads user to edit Menu
+
+// IN EDIT MODE
+//tools :   1 for dirt floor, 
+            2 stone wall, 
+            3 door, 
+            4 mainCharacter(uses a placeholder texture)
+// ps. textures are created randomly within their scope
+//left click place
+    (if possible such as wall and floor uses same layer but door is not)
+//right click remove most upper layer
+// "s" hard save
+// "Backspace" reload latest save from file
+// End of IN EDIT MODE
 
 
 Press ESC to return
