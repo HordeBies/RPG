@@ -36,4 +36,4 @@ func main() {
 //auto maze builder within scope
 //left right up down buttons for travelling on level(currently left upmost part is shown automaticly)
 // entity collision detection in build menu ie. doors cant overlap & there cant be more than 1 main character
-//...
+// ~H~
