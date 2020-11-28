@@ -21,6 +21,7 @@ const (
 	inGame       gameState = 2
 	editLevel    gameState = 3
 	endScreen    gameState = 4
+	playScreen   gameState = 5
 )
 
 var currentState gameState = mainScreen
@@ -54,6 +55,7 @@ type UI2d struct {
 	input         *inputState
 	mainMenu      mainMenuObj
 	selectMenu    selectMenuObj
+	endMenu       endMenuObj
 }
 
 func (ui *UI2d) Init() {
@@ -65,6 +67,7 @@ func (ui *UI2d) Init() {
 	input.updateKeyboardState()
 	ui.input = &input
 	createSelectMenu(ui)
+	endMenuInit(ui)
 }
 
 func init() {

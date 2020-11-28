@@ -108,6 +108,7 @@ func updateMenu(ui *UI2d) {
 func mainMenu(ui *UI2d) stateFunc {
 	renderer.Copy(mainMenuBackground, nil, nil)
 	updateMenu(ui)
+	ui.input.updateMouseState()
 	if ui.input.leftButton && !ui.input.prevLeftButton {
 		for i := 0; i < 2; i++ {
 			if ui.mainMenu.play.dstRect[i].HasIntersection(&sdl.Rect{int32(ui.input.x), int32(ui.input.y), 1, 1}) {

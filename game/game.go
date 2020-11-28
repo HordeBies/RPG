@@ -7,7 +7,7 @@ import (
 
 type GameUI interface {
 	Init()
-	Draw(*Level, bool)
+	Draw(*Level, bool) bool
 	SelectLevel() (*Level, bool)
 	AddPreview(Level)
 }
@@ -87,13 +87,16 @@ func createPreviews(ui GameUI) {
 }
 
 func Run(ui GameUI) {
-	ui.Init()
-	createPreviews(ui)
-	var editBeforeStart bool
-	level, editBeforeStart := ui.SelectLevel()
-	if level == nil {
-		return
+	isReplayed := true
+	for isReplayed {
+		ui.Init()
+		createPreviews(ui)
+		var editBeforeStart bool
+		level, editBeforeStart := ui.SelectLevel()
+		if level == nil {
+			return
+		}
+		level.loadLevelFromFile()
+		isReplayed = ui.Draw(level, editBeforeStart)
 	}
-	level.loadLevelFromFile()
-	ui.Draw(level, editBeforeStart)
 }
