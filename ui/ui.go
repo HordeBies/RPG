@@ -203,6 +203,8 @@ func determineToken(ui *UI2d) stateFunc {
 		return selectMenu(ui)
 	case endScreen:
 		return endMenu(ui)
+	case playScreen:
+		return playMenu(ui)
 	default:
 		return nil
 	}
@@ -230,7 +232,7 @@ func getTextTexture(str string, color sdl.Color) *sdl.Texture {
 	return textTexture
 }
 
-func (ui *UI2d) Draw(level *game.Level, startingState bool) {
+func (ui *UI2d) Draw(level *game.Level, startingState bool) bool {
 	if startingState {
 		currentState = editLevel
 	} else {
@@ -242,19 +244,27 @@ func (ui *UI2d) Draw(level *game.Level, startingState bool) {
 	createLayers(level, ui)
 
 	for {
+		//currTime := time.Now()
 		for event := sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
 			switch event.(type) { // theEvent := event.(type) //remember this
 			case *sdl.QuitEvent:
-				return
+				return false
 			}
 		}
 		determineToken(ui)
-
+		if ui.endMenu.isTerminated {
+			return false
+		}
+		if ui.endMenu.isRestarted {
+			return true
+		}
 		//fmt.Println(ui.layers[1].srcRect[0][0], ui.layers[1].dstRect[0][0])
 		renderer.Present()
-		sdl.Delay(16)
+
 		ui.input.updateKeyboardState()
 		ui.input.updateMouseState()
+		//fmt.Println(time.Since(currTime).Milliseconds())
+		sdl.Delay(16)
 	}
 }
 
@@ -265,7 +275,7 @@ func (ui *UI2d) SelectLevel() (*game.Level, bool) {
 	globalLevel = nil
 	//start := time.Now()
 	for {
-		//start = time.Now()
+		//currTime := time.Now()
 		for event := sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
 			switch event.(type) { // theEvent := event.(type) //remember this
 			case *sdl.QuitEvent:
@@ -273,6 +283,7 @@ func (ui *UI2d) SelectLevel() (*game.Level, bool) {
 			}
 		}
 		determineToken(ui)
+
 		if globalLevel != nil {
 			return globalLevel, editBeforeStart
 		}
@@ -280,6 +291,7 @@ func (ui *UI2d) SelectLevel() (*game.Level, bool) {
 
 		ui.input.updateKeyboardState()
 		ui.input.updateMouseState()
+		//fmt.Println(time.Since(currTime).Milliseconds())
 		sdl.Delay(16)
 	}
 }
