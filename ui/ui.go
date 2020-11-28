@@ -115,8 +115,17 @@ func imgFileToTexture(filename string) *sdl.Texture {
 	return tex
 }
 
-func createLayers(level *game.Level, ui *UI2d) {
+func getEntity(obj game.Entity) entityInterface {
+	switch obj.Tile {
+	case '|':
+		return newDoor(obj)
+	case 'P':
+		return createMainCharacter(obj)
+	}
+	panic("error")
+}
 
+func createLayers(level *game.Level, ui *UI2d) {
 	for y := range ui.background.srcRect {
 		for x := range ui.background.srcRect[y] {
 			ui.background.srcRect[y][x] = nil
@@ -146,8 +155,7 @@ func createLayers(level *game.Level, ui *UI2d) {
 	}
 	ui.background.entities = ui.background.entities[0:0]
 	for _, obj := range level.Entities {
-		srcRect := textureIndex[obj.Tile]
-		ui.background.entities = append(ui.background.entities, &entity{obj.X, obj.Y, &srcRect[0]})
+		ui.background.entities = append(ui.background.entities, getEntity(obj))
 	}
 }
 
@@ -181,8 +189,7 @@ func (ui *UI2d) AddPreview(level game.Level) {
 
 	}
 	for _, obj := range level.Entities {
-		srcRect := textureIndex[obj.Tile]
-		ui.levelPreviews[index].entities = append(ui.levelPreviews[index].entities, &entity{obj.X, obj.Y, &srcRect[0]})
+		ui.levelPreviews[index].entities = append(ui.levelPreviews[index].entities, getEntity(obj))
 	}
 }
 
@@ -194,6 +201,8 @@ func determineToken(ui *UI2d) stateFunc {
 		return editMenu(ui)
 	case selectScreen:
 		return selectMenu(ui)
+	case endScreen:
+		return endMenu(ui)
 	default:
 		return nil
 	}
@@ -221,9 +230,13 @@ func getTextTexture(str string, color sdl.Color) *sdl.Texture {
 	return textTexture
 }
 
-func (ui *UI2d) Draw(level *game.Level, layerCount int) {
+func (ui *UI2d) Draw(level *game.Level, startingState bool) {
+	if startingState {
+		currentState = editLevel
+	} else {
+		currentState = endScreen
+	}
 	globalLevel = level
-	currentState = editLevel
 	ui.background = layer{}
 
 	createLayers(level, ui)
@@ -245,7 +258,9 @@ func (ui *UI2d) Draw(level *game.Level, layerCount int) {
 	}
 }
 
-func (ui *UI2d) SelectLevel() *game.Level {
+var editBeforeStart bool
+
+func (ui *UI2d) SelectLevel() (*game.Level, bool) {
 	currentState = mainScreen
 	globalLevel = nil
 	//start := time.Now()
@@ -254,12 +269,12 @@ func (ui *UI2d) SelectLevel() *game.Level {
 		for event := sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
 			switch event.(type) { // theEvent := event.(type) //remember this
 			case *sdl.QuitEvent:
-				return nil
+				return nil, false
 			}
 		}
 		determineToken(ui)
 		if globalLevel != nil {
-			return globalLevel
+			return globalLevel, editBeforeStart
 		}
 		renderer.Present()
 

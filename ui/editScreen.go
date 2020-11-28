@@ -15,16 +15,16 @@ var editingTile game.Tile = game.DirtFloor
 
 func checkEditingTileChange(ui *UI2d) {
 	if ui.input.currKeyState[sdl.SCANCODE_1] != 0 && ui.input.prevKeyState[sdl.SCANCODE_1] == 0 {
-		editingTile = game.DirtFloor
+		editingTile = editingTileSlice[0]
 	}
 	if ui.input.currKeyState[sdl.SCANCODE_2] != 0 && ui.input.prevKeyState[sdl.SCANCODE_2] == 0 {
-		editingTile = game.StoneWall
+		editingTile = editingTileSlice[1]
 	}
 	if ui.input.currKeyState[sdl.SCANCODE_3] != 0 && ui.input.prevKeyState[sdl.SCANCODE_3] == 0 {
-		editingTile = game.DoorC
+		editingTile = editingTileSlice[2]
 	}
 	if ui.input.currKeyState[sdl.SCANCODE_4] != 0 && ui.input.prevKeyState[sdl.SCANCODE_4] == 0 {
-		editingTile = game.MainCharacter
+		editingTile = editingTileSlice[3]
 	}
 }
 
@@ -43,6 +43,12 @@ func getTileType() int {
 	}
 }
 
+var editingTileSlice = []game.Tile{
+	game.DirtFloor,
+	game.StoneWall,
+	game.DoorC,
+	game.MainCharacter,
+}
 var globalLevel *game.Level
 
 func addToGridWorld(x, y, l int, tile game.Tile) {
@@ -65,14 +71,7 @@ func addToGridWorld(x, y, l int, tile game.Tile) {
 	}
 }
 
-func editMenu(ui *UI2d) stateFunc {
-	//fmt.Println("edit Menu")
-	if ui.input.currKeyState[sdl.SCANCODE_S] == 0 && ui.input.prevKeyState[sdl.SCANCODE_S] != 0 {
-		game.Save(globalLevel)
-		fmt.Println("saving done")
-	}
-	checkEditingTileChange(ui)
-
+func editTile(ui *UI2d) {
 	if ui.input.leftButton { // && !ui.input.prevLeftButton
 		x := int(math.Floor(float64(ui.input.x) / 32))
 		y := int(math.Floor(float64(ui.input.y) / 32))
@@ -82,8 +81,8 @@ func editMenu(ui *UI2d) stateFunc {
 			ui.background.dstRect[y][x] = &sdl.Rect{X: int32(x) * 32, Y: int32(y) * 32, W: 32, H: 32}
 			addToGridWorld(x, y, l, editingTile)
 		} else if l == 1 && !ui.input.prevLeftButton {
-			ui.background.entities = append(ui.background.entities, &entity{x * 32, y * 32, &textureIndex[editingTile][0]})
 			globalLevel.Entities = append(globalLevel.Entities, game.Entity{x * 32, y * 32, editingTile})
+			ui.background.entities = append(ui.background.entities, getEntity(globalLevel.Entities[len(globalLevel.Entities)-1]))
 		}
 
 	}
@@ -92,8 +91,9 @@ func editMenu(ui *UI2d) stateFunc {
 		x := int(math.Floor(float64(ui.input.x) / 32))
 		y := int(math.Floor(float64(ui.input.y) / 32))
 		if len(ui.background.entities) > 0 && !ui.input.prevRightButton {
-			for i, obj := range ui.background.entities {
-				if ui.input.x < obj.x+32 && ui.input.x >= obj.x && ui.input.y < obj.y+32 && ui.input.y >= obj.y {
+			for i, intf := range ui.background.entities {
+				obj := intf.(entityInterface)
+				if ui.input.x < obj.getX()+32 && ui.input.x >= obj.getX() && ui.input.y < obj.getY()+32 && ui.input.y >= obj.getY() {
 					if len(ui.background.entities) > 1 {
 						ui.background.entities = append(ui.background.entities[0:i], ui.background.entities[i+1:len(ui.background.entities)]...)
 						globalLevel.Entities = append(globalLevel.Entities[0:i], globalLevel.Entities[i+1:len(globalLevel.Entities)]...)
@@ -118,9 +118,59 @@ func editMenu(ui *UI2d) stateFunc {
 		createLayers(globalLevel, ui)
 
 	}
+}
 
-	//renderer.Copy(mainMenuBackground, nil, nil)
-	renderer.Copy(blackPixel, nil, &sdl.Rect{0, 0, winWidth, winHeight})
+func currTileChangeMenu(ui *UI2d) {
+	var x int32 = 300
+	var y int32 = 200
+	var w int = 240
+	var h int = 152 + 48
+	var tileTabDst []*sdl.Rect
+	renderer.Copy(ui.mainMenu.infoTab, &sdl.Rect{0, 0, 1, 1}, &sdl.Rect{x, y, int32(w), int32(h)})
+	for i, tile := range editingTileSlice {
+		if 76*(i+1) > w {
+			y = y + 76
+		}
+		if editingTile == tile {
+			px := createOnePixel(255, 255, 255, 200)
+			renderer.Copy(px, nil, &sdl.Rect{x + 6 + (int32(76*i))%int32(w-12), y, 76, 76})
+			renderer.Copy(ui.mainMenu.infoTab, &sdl.Rect{0, 0, 1, 1}, &sdl.Rect{x + 12 + (int32(76*i))%int32(w-12), y + 6, 64, 64})
+		}
+		tileTabDst = append(tileTabDst, &sdl.Rect{x + 12 + (int32(76*i))%int32(w-12), y + 6, 64, 64})
+		renderer.Copy(textureAtlas, &textureIndex[tile][0], tileTabDst[i])
+	}
+
+	x = 360
+	y += 76
+	renderer.Copy(uiAtlas, ui.selectMenu.start.srcRect[0], &sdl.Rect{x, y, 25*1.5 - 0.5, 32 * 1.5})
+	renderer.Copy(uiAtlas, ui.selectMenu.start.srcRect[1], &sdl.Rect{x + 24*1.5, y + 4, 55*1.5 - .5, 25 * 1.6})
+	renderer.Copy(ui.selectMenu.start.str, nil, &sdl.Rect{x + 28*1.5, y + 7, 45*1.5 - 0.5, 20 * 1.5})
+
+	if ui.input.leftButton && !ui.input.prevLeftButton {
+		clickRect := &sdl.Rect{int32(ui.input.x), int32(ui.input.y), 1, 1}
+		for i, rect := range tileTabDst {
+			if clickRect.HasIntersection(rect) {
+				editingTile = editingTileSlice[i]
+				break
+			}
+		}
+		if clickRect.HasIntersection(&sdl.Rect{x, y, 25*1.5 - 0.5, 32 * 1.5}) || clickRect.HasIntersection(&sdl.Rect{x + 24*1.5, y + 4, 55*1.5 - .5, 25 * 1.6}) {
+			game.Save(globalLevel)
+			currentState = endScreen
+		}
+	}
+}
+
+func editMenu(ui *UI2d) stateFunc {
+	//fmt.Println("edit Menu")
+	if ui.input.currKeyState[sdl.SCANCODE_S] == 0 && ui.input.prevKeyState[sdl.SCANCODE_S] != 0 {
+		game.Save(globalLevel)
+		fmt.Println("saving done")
+	}
+	checkEditingTileChange(ui)
+
+	renderer.Copy(mainMenuBackground, nil, nil)
+	//renderer.Copy(blackPixel, nil, &sdl.Rect{0, 0, winWidth, winHeight})
 
 	for y := 0; y < 100; y++ {
 		for x := 0; x < 100; x++ {
@@ -129,8 +179,15 @@ func editMenu(ui *UI2d) stateFunc {
 			}
 		}
 	}
-	for _, obj := range ui.background.entities {
-		renderer.Copy(textureAtlas, obj.srcRect, &sdl.Rect{int32(obj.x), int32(obj.y), 32, 32})
+	for _, intf := range ui.background.entities {
+		obj := intf.(entityInterface)
+		renderer.Copy(textureAtlas, obj.getRect(), &sdl.Rect{int32(obj.getX()), int32(obj.getY()), 32, 32})
+	}
+
+	if ui.input.currKeyState[sdl.SCANCODE_TAB] != 0 || ui.input.currKeyState[sdl.SCANCODE_LSHIFT] != 0 {
+		currTileChangeMenu(ui)
+	} else {
+		editTile(ui)
 	}
 
 	return determineToken
@@ -148,17 +205,35 @@ type levelButton struct {
 type selectMenuObj struct {
 	levels []levelButton
 	start  button
+	edit   button
+	rand   button
 }
 
 func createSelectMenu(ui *UI2d) {
 	ui.selectMenu = selectMenuObj{}
-	ui.selectMenu.start = button{pos: pos{x: winWidth * 0.4, y: winHeight * .4}, isClicked: false}
+	ui.selectMenu.start = button{pos: pos{x: winWidth * .4, y: winHeight * .4}, isClicked: false}
 	ui.selectMenu.start.srcRect = append(ui.selectMenu.start.srcRect, &sdl.Rect{310, 349, 25, 32})
 	ui.selectMenu.start.srcRect = append(ui.selectMenu.start.srcRect, &sdl.Rect{313, 381, 70, 25})
-	ui.selectMenu.start.dstRect = append(ui.selectMenu.start.dstRect, &sdl.Rect{winWidth - 200, winHeight - 70, 25 * 2, 32 * 2})
-	ui.selectMenu.start.dstRect = append(ui.selectMenu.start.dstRect, &sdl.Rect{(winWidth - 200) + 24*2, (winHeight - 70) + 3*2, 70 * 2, 25 * 2})
+	ui.selectMenu.start.dstRect = append(ui.selectMenu.start.dstRect, &sdl.Rect{0, 480 - 50, 25*1.5 - 0.5, 32 * 1.5})
+	ui.selectMenu.start.dstRect = append(ui.selectMenu.start.dstRect, &sdl.Rect{0 + 24*1.5, 480 + 3*1.5 - 50 - 0.5, 55*1.5 - .5, 25 * 1.6})
 	ui.selectMenu.start.str = getTextTexture("Start", sdl.Color{255, 255, 255, 0})
-	ui.selectMenu.start.dstRect = append(ui.selectMenu.start.dstRect, &sdl.Rect{(winWidth - 200) + 28*2, (winHeight - 70) + 5*2, 45 * 2, 20 * 2})
+	ui.selectMenu.start.dstRect = append(ui.selectMenu.start.dstRect, &sdl.Rect{0 + 28*1.5, 480 + 5*1.5 - .5 - 50, 45*1.5 - 0.5, 20 * 1.5})
+
+	ui.selectMenu.edit = button{pos: pos{x: winWidth * 0.4, y: winHeight * .4}, isClicked: false}
+	ui.selectMenu.edit.srcRect = append(ui.selectMenu.edit.srcRect, &sdl.Rect{336, 349, 25, 32})
+	ui.selectMenu.edit.srcRect = append(ui.selectMenu.edit.srcRect, &sdl.Rect{313, 381, 70, 25})
+	ui.selectMenu.edit.dstRect = append(ui.selectMenu.edit.dstRect, &sdl.Rect{0, 480, 25*1.5 - 0.5, 32 * 1.5})
+	ui.selectMenu.edit.dstRect = append(ui.selectMenu.edit.dstRect, &sdl.Rect{0 + 24*1.5, 480 + 3*1.5 - 0.5, 46 * 1.5, 25 * 1.6})
+	ui.selectMenu.edit.str = getTextTexture("Edit", sdl.Color{255, 255, 255, 0})
+	ui.selectMenu.edit.dstRect = append(ui.selectMenu.edit.dstRect, &sdl.Rect{0 + 28*1.5, 480 + 5*1.5 - .5, 36 * 1.5, 20 * 1.5})
+
+	ui.selectMenu.rand = button{pos: pos{x: winWidth * .4, y: winHeight * .4}, isClicked: false}
+	ui.selectMenu.rand.srcRect = append(ui.selectMenu.rand.srcRect, &sdl.Rect{362, 349, 25, 32})
+	ui.selectMenu.rand.srcRect = append(ui.selectMenu.rand.srcRect, &sdl.Rect{313, 381, 70, 25})
+	ui.selectMenu.rand.dstRect = append(ui.selectMenu.rand.dstRect, &sdl.Rect{0, 480 + 50, 25*1.5 - 0.5, 32 * 1.5})
+	ui.selectMenu.rand.dstRect = append(ui.selectMenu.rand.dstRect, &sdl.Rect{0 + 24*1.5, 480 + 3*1.5 + 50 - 0.5, 82 * 1.5, 25 * 1.6})
+	ui.selectMenu.rand.str = getTextTexture("ReCreate", sdl.Color{255, 255, 255, 0})
+	ui.selectMenu.rand.dstRect = append(ui.selectMenu.rand.dstRect, &sdl.Rect{0 + 28*1.5, 480 + 5*1.5 - .5 + 50, 72 * 1.5, 20 * 1.5})
 
 	files, err := ioutil.ReadDir("./game/maps/")
 	if err != nil {
@@ -179,12 +254,24 @@ func createSelectMenu(ui *UI2d) {
 func updateSelections(ui *UI2d) {
 	if ui.input.leftButton && !ui.input.prevLeftButton {
 		clickRect := &sdl.Rect{int32(ui.input.x), int32(ui.input.y), 1, 1}
+		if ui.selectMenu.edit.dstRect[0].HasIntersection(clickRect) || ui.selectMenu.edit.dstRect[1].HasIntersection(clickRect) {
+			for _, level := range ui.selectMenu.levels {
+				if level.isClicked {
+					ui.input.updateMouseState()
+					globalLevel = &game.Level{}
+					globalLevel.LevelName = level.levelName
+					editBeforeStart = true
+					break
+				}
+			}
+		}
 		if ui.selectMenu.start.dstRect[0].HasIntersection(clickRect) || ui.selectMenu.start.dstRect[1].HasIntersection(clickRect) {
 			for _, level := range ui.selectMenu.levels {
 				if level.isClicked {
 					ui.input.updateMouseState()
 					globalLevel = &game.Level{}
 					globalLevel.LevelName = level.levelName
+					editBeforeStart = false
 					break
 				}
 			}
@@ -218,8 +305,9 @@ func selectMenu(ui *UI2d) stateFunc {
 					}
 				}
 			}
-			for _, obj := range ui.levelPreviews[i].entities {
-				renderer.Copy(textureAtlas, obj.srcRect, &sdl.Rect{int32(obj.x + 150), int32(obj.y), 32, 32})
+			for _, intf := range ui.levelPreviews[i].entities {
+				obj := intf.(entityInterface)
+				renderer.Copy(textureAtlas, obj.getRect(), &sdl.Rect{int32(obj.getX() + 150), int32(obj.getY()), 32, 32})
 			}
 		}
 		renderer.Copy(level.texture, nil, level.rect)
@@ -227,8 +315,12 @@ func selectMenu(ui *UI2d) stateFunc {
 
 	for i := 0; i < 2; i++ {
 		renderer.Copy(uiAtlas, ui.selectMenu.start.srcRect[i], ui.selectMenu.start.dstRect[i])
+		renderer.Copy(uiAtlas, ui.selectMenu.edit.srcRect[i], ui.selectMenu.edit.dstRect[i])
+		renderer.Copy(uiAtlas, ui.selectMenu.rand.srcRect[i], ui.selectMenu.rand.dstRect[i])
 	}
 	renderer.Copy(ui.selectMenu.start.str, nil, ui.selectMenu.start.dstRect[2])
+	renderer.Copy(ui.selectMenu.edit.str, nil, ui.selectMenu.edit.dstRect[2])
+	renderer.Copy(ui.selectMenu.rand.str, nil, ui.selectMenu.rand.dstRect[2])
 
 	if ui.input.currKeyState[sdl.SCANCODE_ESCAPE] != 0 && ui.input.prevKeyState[sdl.SCANCODE_ESCAPE] == 0 {
 		currentState = mainScreen

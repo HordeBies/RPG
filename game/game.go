@@ -7,8 +7,8 @@ import (
 
 type GameUI interface {
 	Init()
-	Draw(*Level, int)
-	SelectLevel() *Level
+	Draw(*Level, bool)
+	SelectLevel() (*Level, bool)
 	AddPreview(Level)
 }
 
@@ -42,18 +42,8 @@ type Entity struct {
 	Tile Tile
 }
 
-type PlayerE struct {
-	Entity
-}
-
-type DoorE struct {
-	Entity
-	is_open bool
-}
-
 type Level struct {
 	GridWorld GridWorld
-	Player    PlayerE
 	LevelName string
 	Entities  []Entity
 }
@@ -99,10 +89,11 @@ func createPreviews(ui GameUI) {
 func Run(ui GameUI) {
 	ui.Init()
 	createPreviews(ui)
-	level := ui.SelectLevel()
+	var editBeforeStart bool
+	level, editBeforeStart := ui.SelectLevel()
 	if level == nil {
 		return
 	}
 	level.loadLevelFromFile()
-	ui.Draw(level, 2)
+	ui.Draw(level, editBeforeStart)
 }
