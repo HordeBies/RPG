@@ -1,14 +1,23 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
+	"os"
 
 	"github.com/BiesGo/sdlWorkSpace/rpg/game"
 	"github.com/BiesGo/sdlWorkSpace/rpg/ui"
 )
 
 func main() {
-	fmt.Println("game currently starts in Main Menu \nPlay button leads user to Selection Menu\nStart button leads user to edit Menu\n\nIN EDIT MODE\ntools : 1 for dirt floor, 2 stone wall, 3 door, 4 mainCharacter(uses a placeholder texture)\nps. textures are created randomly within their scope\nleft click place(if possible such as wall and floor uses same layer but door is 1 layer above)\nright click remove most upper layer\n's' hard save\n'Backspace' reload latest save from file\nEnd of IN EDIT MODE")
+	file, err := os.Open("./ui/assets/mainMenuInfo.txt")
+	if err != nil {
+		panic(err)
+	}
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		fmt.Println(scanner.Text())
+	}
 	ui := &ui.UI2d{}
 	game.Run(ui)
 
@@ -20,6 +29,12 @@ func main() {
 //		start button leads user to end menu
 //		edit button leads user to edit menu
 
+//IN LEVEL SELECTION MENU
+//after selecting a level if show preview box checked a preview appears
+//user can use arrow keys(left,right,up,down) to traverse maze
+//user can hold lshift for minimap
+//while holding lshift pageUp & pageDown buttons zooms in & out respectively
+
 // IN EDIT MODE
 //for tool menu hold "tab" or "lshift"
 //click on tool menu choices or use numbers 1,2,3...
@@ -29,7 +44,6 @@ func main() {
 //right click remove most upper layer
 // "s" hard save
 // "Backspace" reload latest save from file
-// End of IN EDIT MODE
 
 //todo list
 //code beauty(there may be unused/unnecessary parts left while changing whole structure)
