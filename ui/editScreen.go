@@ -207,6 +207,8 @@ type selectMenuObj struct {
 	start  button
 	edit   button
 	rand   button
+	levelRelativity
+	preview button
 }
 
 func createSelectMenu(ui *UI2d) {
@@ -235,6 +237,13 @@ func createSelectMenu(ui *UI2d) {
 	ui.selectMenu.rand.str = getTextTexture("ReCreate", sdl.Color{255, 255, 255, 0})
 	ui.selectMenu.rand.dstRect = append(ui.selectMenu.rand.dstRect, &sdl.Rect{0 + 28*1.5, 480 + 5*1.5 - .5 + 50, 72 * 1.5, 20 * 1.5})
 
+	ui.selectMenu.preview = button{pos: pos{}, isClicked: false}
+	ui.selectMenu.preview.srcRect = append(ui.selectMenu.preview.srcRect, &sdl.Rect{311, 143, 20, 20})
+	ui.selectMenu.preview.srcRect = append(ui.selectMenu.preview.srcRect, &sdl.Rect{332, 143, 20, 20})
+	ui.selectMenu.preview.dstRect = append(ui.selectMenu.preview.dstRect, &sdl.Rect{0, 400, 20, 20})
+	ui.selectMenu.preview.str = getTextTexture("Show Preview", sdl.Color{255, 255, 255, 0})
+	ui.selectMenu.preview.dstRect = append(ui.selectMenu.preview.dstRect, &sdl.Rect{25, 400, 108, 20})
+
 	files, err := ioutil.ReadDir("./game/maps/")
 	if err != nil {
 		panic(err)
@@ -249,6 +258,8 @@ func createSelectMenu(ui *UI2d) {
 		ui.selectMenu.levels[i].texture = getTextTexture(ui.selectMenu.levels[i].levelName, sdl.Color{255, 255, 255, 0})
 		ui.selectMenu.levels[i].rect = &sdl.Rect{5, int32(40 * i), 90, 40}
 	}
+
+	ui.selectMenu.levelRelativity = levelRelativity{0, 0, 21, 19, 0, 0, 50}
 }
 
 func updateSelections(ui *UI2d) {
@@ -257,7 +268,6 @@ func updateSelections(ui *UI2d) {
 		if ui.selectMenu.edit.dstRect[0].HasIntersection(clickRect) || ui.selectMenu.edit.dstRect[1].HasIntersection(clickRect) {
 			for _, level := range ui.selectMenu.levels {
 				if level.isClicked {
-					ui.input.updateMouseState()
 					globalLevel = &game.Level{}
 					globalLevel.LevelName = level.levelName
 					editBeforeStart = true
@@ -268,7 +278,6 @@ func updateSelections(ui *UI2d) {
 		if ui.selectMenu.start.dstRect[0].HasIntersection(clickRect) || ui.selectMenu.start.dstRect[1].HasIntersection(clickRect) {
 			for _, level := range ui.selectMenu.levels {
 				if level.isClicked {
-					ui.input.updateMouseState()
 					globalLevel = &game.Level{}
 					globalLevel.LevelName = level.levelName
 					editBeforeStart = false
@@ -285,6 +294,94 @@ func updateSelections(ui *UI2d) {
 				break
 			}
 		}
+		if clickRect.HasIntersection(ui.selectMenu.preview.dstRect[0]) {
+			ui.selectMenu.preview.isClicked = !ui.selectMenu.preview.isClicked
+		}
+	}
+}
+
+type levelRelativity struct {
+	startX, starY, endX, endY, relativeX, relativeY, scale int
+}
+
+func updatePreviewRelativity(ui *UI2d) {
+	if ui.input.currKeyState[sdl.SCANCODE_RIGHT] != 0 && ui.input.prevKeyState[sdl.SCANCODE_RIGHT] == 0 {
+		if ui.selectMenu.endX+21 < 100 {
+			ui.selectMenu.startX += 21
+			ui.selectMenu.endX += 21
+			ui.selectMenu.relativeX -= 650
+		}
+	}
+	if ui.input.currKeyState[sdl.SCANCODE_LEFT] != 0 && ui.input.prevKeyState[sdl.SCANCODE_LEFT] == 0 {
+		if ui.selectMenu.startX-21 >= 0 {
+			ui.selectMenu.startX -= 21
+			ui.selectMenu.endX -= 21
+			ui.selectMenu.relativeX += 650
+		}
+	}
+	if ui.input.currKeyState[sdl.SCANCODE_UP] != 0 && ui.input.prevKeyState[sdl.SCANCODE_UP] == 0 {
+		if ui.selectMenu.starY-19 >= 0 {
+			ui.selectMenu.starY -= 19
+			ui.selectMenu.endY -= 19
+			ui.selectMenu.relativeY += 650
+		}
+	}
+	if ui.input.currKeyState[sdl.SCANCODE_DOWN] != 0 && ui.input.prevKeyState[sdl.SCANCODE_DOWN] == 0 {
+		if ui.selectMenu.endY+19 < 100 {
+			ui.selectMenu.starY += 19
+			ui.selectMenu.endY += 19
+			ui.selectMenu.relativeY -= 650
+		}
+	}
+}
+
+func showPreview(level *layer, ui *UI2d) {
+	// every tile cost 32 pixels w,32 pixels h,
+	startX := ui.selectMenu.startX
+	starY := ui.selectMenu.starY
+	endX := ui.selectMenu.endX
+	endY := ui.selectMenu.endY
+
+	for y := starY; y < endY; y++ {
+		for x := startX; x < endX; x++ {
+			if level.dstRect[y][x] != nil {
+				renderer.Copy(textureAtlas, level.srcRect[y][x], &sdl.Rect{150 + (int32(x)*32)%800, (int32(y) * 32) % 600, 32, 32})
+			}
+		}
+	}
+	relativeX := ui.selectMenu.relativeX
+	relativeY := ui.selectMenu.relativeY
+	for _, intf := range level.entities {
+		obj := intf.(entityInterface)
+		renderer.Copy(textureAtlas, obj.getRect(), &sdl.Rect{150 + int32(obj.getX()+relativeX), int32(obj.getY() + relativeY), 32, 32})
+	}
+}
+
+func selectMenuMiniMap(level *layer, ui *UI2d) {
+	scale := ui.selectMenu.scale
+	for y := 0; y < scale; y++ {
+		for x := 0; x < scale; x++ {
+			if level.srcRect[y][x] != nil {
+				renderer.Copy(textureAtlas, level.srcRect[y][x], &sdl.Rect{150 + 600/int32(scale)*int32(x), 600 / int32(scale) * int32(y), int32((600 / scale)), int32((600 / scale))})
+			}
+		}
+	}
+	for _, intf := range level.entities {
+		obj := intf.(entityInterface)
+		renderer.Copy(textureAtlas, obj.getRect(), &sdl.Rect{150 + 600/int32(scale)*int32(obj.getX()/32), 600 / int32(scale) * int32(obj.getY()/32), int32((600 / scale)), int32((600 / scale))})
+	}
+}
+
+func updateZoomScale(ui *UI2d) {
+	if ui.input.currKeyState[sdl.SCANCODE_PAGEDOWN] != 0 && ui.input.prevKeyState[sdl.SCANCODE_PAGEDOWN] == 0 {
+		if ui.selectMenu.scale+10 <= 100 {
+			ui.selectMenu.scale += 10
+		}
+	}
+	if ui.input.currKeyState[sdl.SCANCODE_PAGEUP] != 0 && ui.input.prevKeyState[sdl.SCANCODE_PAGEUP] == 0 {
+		if ui.selectMenu.scale-10 > 0 {
+			ui.selectMenu.scale -= 10
+		}
 	}
 }
 
@@ -298,16 +395,17 @@ func selectMenu(ui *UI2d) stateFunc {
 			px := createOnePixel(255, 255, 255, 200)
 			renderer.Copy(px, nil, &sdl.Rect{0, int32(40 * i), 110, 40})
 			renderer.Copy(ui.mainMenu.infoTab, nil, &sdl.Rect{5, int32(i*40) + 5, 100, 30})
-			for y := 0; y < 100; y++ {
-				for x := 0; x < 100; x++ {
-					if ui.levelPreviews[i].dstRect[y][x] != nil {
-						renderer.Copy(textureAtlas, ui.levelPreviews[i].srcRect[y][x], ui.levelPreviews[i].dstRect[y][x])
-					}
+			if ui.selectMenu.preview.isClicked {
+				if ui.input.currKeyState[sdl.SCANCODE_LSHIFT] != 0 {
+					updateZoomScale(ui)
+					selectMenuMiniMap(&ui.levelPreviews[i], ui)
+				} else {
+					updatePreviewRelativity(ui)
+					showPreview(&ui.levelPreviews[i], ui)
 				}
-			}
-			for _, intf := range ui.levelPreviews[i].entities {
-				obj := intf.(entityInterface)
-				renderer.Copy(textureAtlas, obj.getRect(), &sdl.Rect{int32(obj.getX() + 150), int32(obj.getY()), 32, 32})
+				if ui.input.currKeyState[sdl.SCANCODE_LSHIFT] == 0 && ui.input.prevKeyState[sdl.SCANCODE_LSHIFT] == 0 {
+					ui.selectMenu.scale = 50
+				}
 			}
 		}
 		renderer.Copy(level.texture, nil, level.rect)
@@ -321,6 +419,13 @@ func selectMenu(ui *UI2d) stateFunc {
 	renderer.Copy(ui.selectMenu.start.str, nil, ui.selectMenu.start.dstRect[2])
 	renderer.Copy(ui.selectMenu.edit.str, nil, ui.selectMenu.edit.dstRect[2])
 	renderer.Copy(ui.selectMenu.rand.str, nil, ui.selectMenu.rand.dstRect[2])
+
+	if ui.selectMenu.preview.isClicked {
+		renderer.Copy(uiAtlas, ui.selectMenu.preview.srcRect[1], ui.selectMenu.preview.dstRect[0])
+	} else {
+		renderer.Copy(uiAtlas, ui.selectMenu.preview.srcRect[0], ui.selectMenu.preview.dstRect[0])
+	}
+	renderer.Copy(ui.selectMenu.preview.str, nil, ui.selectMenu.preview.dstRect[1])
 
 	if ui.input.currKeyState[sdl.SCANCODE_ESCAPE] != 0 && ui.input.prevKeyState[sdl.SCANCODE_ESCAPE] == 0 {
 		currentState = mainScreen
