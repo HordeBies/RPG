@@ -165,12 +165,12 @@ type editMenuObj struct {
 
 func createEditMenu(ui *UI2d) {
 	ui.editMenu = editMenuObj{}
-	ui.editMenu.levelRelativity = levelRelativity{0, 0, 25, 19, 0, 0, 50}
+	ui.editMenu.levelRelativity = levelRelativity{0, 0, 25, 19, 0, 0, 54}
 }
 
 func updateEditRelativity(ui *UI2d) {
 	if ui.input.currKeyState[sdl.SCANCODE_RIGHT] != 0 && ui.input.prevKeyState[sdl.SCANCODE_RIGHT] == 0 {
-		if ui.editMenu.endX+25 < 100 {
+		if ui.editMenu.endX+25 <= 100 {
 			ui.editMenu.startX += 25
 			ui.editMenu.endX += 25
 			ui.editMenu.relativeX -= 800
@@ -179,7 +179,7 @@ func updateEditRelativity(ui *UI2d) {
 	if ui.input.currKeyState[sdl.SCANCODE_LEFT] != 0 && ui.input.prevKeyState[sdl.SCANCODE_LEFT] == 0 {
 		if ui.editMenu.startX-25 >= 0 {
 			ui.editMenu.startX -= 25
-			ui.editMenu.endX -= 25
+			ui.editMenu.endX = ui.editMenu.startX + 25
 			ui.editMenu.relativeX += 800
 		}
 	}
@@ -187,14 +187,14 @@ func updateEditRelativity(ui *UI2d) {
 		if ui.editMenu.starY-19 >= 0 {
 			ui.editMenu.starY -= 19
 			ui.editMenu.endY -= 19
-			ui.editMenu.relativeY += 600
+			ui.editMenu.relativeY += 608
 		}
 	}
 	if ui.input.currKeyState[sdl.SCANCODE_DOWN] != 0 && ui.input.prevKeyState[sdl.SCANCODE_DOWN] == 0 {
-		if ui.editMenu.endY+19 < 100 {
+		if ui.editMenu.endY+19 <= 114 {
 			ui.editMenu.starY += 19
 			ui.editMenu.endY += 19
-			ui.editMenu.relativeY -= 600
+			ui.editMenu.relativeY -= 608
 		}
 	}
 }
@@ -207,8 +207,8 @@ func showEditLevel(ui *UI2d) {
 
 	for y := starY; y < endY; y++ {
 		for x := startX; x < endX; x++ {
-			if ui.background.dstRect[y][x] != nil {
-				renderer.Copy(textureAtlas, ui.background.srcRect[y][x], &sdl.Rect{(int32(x) * 32) % 800, (int32(y) * 32) % 600, 32, 32})
+			if x > -1 && y > -1 && x < 100 && y < 100 && ui.background.dstRect[y][x] != nil {
+				renderer.Copy(textureAtlas, ui.background.srcRect[y][x], &sdl.Rect{(int32(x%25) * 32), (int32(y%19) * 32), 32, 32})
 			}
 		}
 	}
@@ -222,8 +222,8 @@ func showEditLevel(ui *UI2d) {
 
 func editMenuMiniMap(ui *UI2d) {
 	scale := ui.editMenu.scale
-	for y := 0; y < scale; y++ {
-		for x := 0; x < scale*4/3; x++ {
+	for y := 0; y < 100; y++ {
+		for x := 0; x < 100; x++ {
 			if ui.background.srcRect[y][x] != nil {
 				renderer.Copy(textureAtlas, ui.background.srcRect[y][x], &sdl.Rect{600 / int32(scale) * int32(x), 600 / int32(scale) * int32(y), int32((600 / scale)), int32((600 / scale))})
 			}
@@ -236,13 +236,13 @@ func editMenuMiniMap(ui *UI2d) {
 }
 func updateEditScale(ui *UI2d) {
 	if ui.input.currKeyState[sdl.SCANCODE_PAGEDOWN] != 0 && ui.input.prevKeyState[sdl.SCANCODE_PAGEDOWN] == 0 {
-		if ui.editMenu.scale+10 <= 100 {
-			ui.editMenu.scale += 10
+		if ui.editMenu.scale+9 < 100 {
+			ui.editMenu.scale += 9
 		}
 	}
 	if ui.input.currKeyState[sdl.SCANCODE_PAGEUP] != 0 && ui.input.prevKeyState[sdl.SCANCODE_PAGEUP] == 0 {
-		if ui.editMenu.scale-10 > 0 {
-			ui.editMenu.scale -= 10
+		if ui.editMenu.scale-9 > 0 {
+			ui.editMenu.scale -= 9
 		}
 	}
 }

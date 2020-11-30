@@ -78,7 +78,7 @@ func createSelectMenu(ui *UI2d) {
 		ui.selectMenu.levels[i].rect = &sdl.Rect{5, int32(40 * i), 90, 40}
 	}
 
-	ui.selectMenu.levelRelativity = levelRelativity{0, 0, 21, 19, 0, 0, 50}
+	ui.selectMenu.levelRelativity = levelRelativity{0, 0, 21, 19, 0, 0, 54}
 }
 
 func updateSelections(ui *UI2d) {
@@ -121,31 +121,31 @@ func updateSelections(ui *UI2d) {
 
 func updatePreviewRelativity(ui *UI2d) {
 	if ui.input.currKeyState[sdl.SCANCODE_RIGHT] != 0 && ui.input.prevKeyState[sdl.SCANCODE_RIGHT] == 0 {
-		if ui.selectMenu.endX+21 < 100 {
+		if ui.selectMenu.endX+21 <= 105 {
 			ui.selectMenu.startX += 21
 			ui.selectMenu.endX += 21
-			ui.selectMenu.relativeX -= 650
+			ui.selectMenu.relativeX -= 672
 		}
 	}
 	if ui.input.currKeyState[sdl.SCANCODE_LEFT] != 0 && ui.input.prevKeyState[sdl.SCANCODE_LEFT] == 0 {
 		if ui.selectMenu.startX-21 >= 0 {
 			ui.selectMenu.startX -= 21
 			ui.selectMenu.endX -= 21
-			ui.selectMenu.relativeX += 650
+			ui.selectMenu.relativeX += 672
 		}
 	}
 	if ui.input.currKeyState[sdl.SCANCODE_UP] != 0 && ui.input.prevKeyState[sdl.SCANCODE_UP] == 0 {
 		if ui.selectMenu.starY-19 >= 0 {
 			ui.selectMenu.starY -= 19
 			ui.selectMenu.endY -= 19
-			ui.selectMenu.relativeY += 600
+			ui.selectMenu.relativeY += 608
 		}
 	}
 	if ui.input.currKeyState[sdl.SCANCODE_DOWN] != 0 && ui.input.prevKeyState[sdl.SCANCODE_DOWN] == 0 {
-		if ui.selectMenu.endY+19 < 100 {
+		if ui.selectMenu.endY+19 <= 114 {
 			ui.selectMenu.starY += 19
 			ui.selectMenu.endY += 19
-			ui.selectMenu.relativeY -= 600
+			ui.selectMenu.relativeY -= 608
 		}
 	}
 }
@@ -158,8 +158,8 @@ func showPreview(level *layer, ui *UI2d) {
 
 	for y := starY; y < endY; y++ {
 		for x := startX; x < endX; x++ {
-			if level.dstRect[y][x] != nil {
-				renderer.Copy(textureAtlas, level.srcRect[y][x], &sdl.Rect{150 + (int32(x)*32)%800, (int32(y) * 32) % 600, 32, 32})
+			if x > -1 && y > -1 && x < 100 && y < 100 && level.dstRect[y][x] != nil {
+				renderer.Copy(textureAtlas, level.srcRect[y][x], &sdl.Rect{150 + (int32(x%21) * 32), (int32(y%19) * 32), 32, 32})
 			}
 		}
 	}
@@ -167,14 +167,16 @@ func showPreview(level *layer, ui *UI2d) {
 	relativeY := ui.selectMenu.relativeY
 	for _, intf := range level.entities {
 		obj := intf.(entityInterface)
-		renderer.Copy(textureAtlas, obj.getRect(), &sdl.Rect{150 + int32(obj.getX()+relativeX), int32(obj.getY() + relativeY), 32, 32})
+		if obj.getX()+relativeX+150 > 150 {
+			renderer.Copy(textureAtlas, obj.getRect(), &sdl.Rect{150 + int32(obj.getX()+relativeX), int32(obj.getY() + relativeY), 32, 32})
+		}
 	}
 }
 
 func selectMenuMiniMap(level *layer, ui *UI2d) {
 	scale := ui.selectMenu.scale
-	for y := 0; y < scale; y++ {
-		for x := 0; x < scale; x++ {
+	for y := 0; y < 100; y++ {
+		for x := 0; x < 100; x++ {
 			if level.srcRect[y][x] != nil {
 				renderer.Copy(textureAtlas, level.srcRect[y][x], &sdl.Rect{150 + 600/int32(scale)*int32(x), 600 / int32(scale) * int32(y), int32((600 / scale)), int32((600 / scale))})
 			}
@@ -188,13 +190,13 @@ func selectMenuMiniMap(level *layer, ui *UI2d) {
 
 func updateZoomScale(ui *UI2d) {
 	if ui.input.currKeyState[sdl.SCANCODE_PAGEDOWN] != 0 && ui.input.prevKeyState[sdl.SCANCODE_PAGEDOWN] == 0 {
-		if ui.selectMenu.scale+10 <= 100 {
-			ui.selectMenu.scale += 10
+		if ui.selectMenu.scale+9 < 100 {
+			ui.selectMenu.scale += 9
 		}
 	}
 	if ui.input.currKeyState[sdl.SCANCODE_PAGEUP] != 0 && ui.input.prevKeyState[sdl.SCANCODE_PAGEUP] == 0 {
-		if ui.selectMenu.scale-10 > 0 {
-			ui.selectMenu.scale -= 10
+		if ui.selectMenu.scale-9 > 0 {
+			ui.selectMenu.scale -= 9
 		}
 	}
 }
