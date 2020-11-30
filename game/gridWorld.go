@@ -2,6 +2,7 @@ package game
 
 import (
 	"bufio"
+	"fmt"
 	"os"
 	"strconv"
 	"strings"
@@ -23,6 +24,7 @@ func getTile(c rune) (t Tile) {
 	case 'P':
 		t = MainCharacter
 	default:
+		fmt.Println(c)
 		panic("unknown gridworld mapping")
 	}
 	return t
@@ -35,6 +37,8 @@ func Save(level *Level) {
 	if err != nil {
 		panic(err)
 	}
+	file.Truncate(0)
+	file.Seek(0, 0)
 	for y := range gw.Rows {
 		for x := range gw.Rows[y].Grids {
 			if gw.Rows[y].Grids[x].Background != Blank {
@@ -51,6 +55,8 @@ func Save(level *Level) {
 	if err != nil {
 		panic(err)
 	}
+	entityFile.Truncate(0)
+	entityFile.Seek(0, 0)
 	for _, obj := range level.Entities {
 		entityFile.WriteString(obj.Tile.toString() + " " + strconv.Itoa(obj.X) + "," + strconv.Itoa(obj.Y))
 		entityFile.WriteString("\n")
@@ -95,7 +101,15 @@ func (level *Level) loadLevelFromFile() {
 		text := entityScanner.Text()
 		arr := strings.Split(text, " ")
 		currRune, _ := utf8.DecodeLastRuneInString(arr[0])
+		if len(arr) < 2 {
+			fmt.Println("found error: ", len(level.Entities))
+			continue
+		}
 		coords := strings.Split(arr[1], ",")
+		if len(coords) < 2 {
+			fmt.Println("found error: ", len(level.Entities))
+			continue
+		}
 		x, err1 := strconv.Atoi(coords[0])
 		y, err2 := strconv.Atoi(coords[1])
 		if err1 != nil || err2 != nil {
