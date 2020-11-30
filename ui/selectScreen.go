@@ -104,6 +104,13 @@ func updateSelections(ui *UI2d) {
 				}
 			}
 		}
+		if ui.selectMenu.rand.dstRect[0].HasIntersection(clickRect) || ui.selectMenu.rand.dstRect[1].HasIntersection(clickRect) {
+			for i, level := range ui.selectMenu.levels {
+				if level.isClicked {
+					ui.ReCreatePreview(game.CreateRandomMaze(level.levelName, ui), i)
+				}
+			}
+		}
 		for i, level := range ui.selectMenu.levels {
 			if level.rect.HasIntersection(clickRect) {
 				for i := range ui.selectMenu.levels {

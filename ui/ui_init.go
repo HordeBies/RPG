@@ -1,9 +1,6 @@
 package ui
 
 import (
-	"math/rand"
-	"time"
-
 	"github.com/BiesGo/sdlWorkSpace/rpg/game"
 	"github.com/veandco/go-sdl2/sdl"
 	"github.com/veandco/go-sdl2/ttf"
@@ -98,7 +95,7 @@ func init() {
 		panic(err)
 	}
 	defer sdl.FreeWAV(explosionBytes)*/
-	rand.Seed(time.Now().UTC().UnixNano())
+	// rand.Seed(time.Now().UTC().UnixNano())
 	blackPixel = createOnePixel(0, 0, 0, 0)
 	textureAtlas = imgFileToTexture("ui/assets/tiles.png")
 	loadTextureIndex()
