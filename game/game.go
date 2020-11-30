@@ -2,7 +2,9 @@ package game
 
 import (
 	"fmt"
+	"math/rand"
 	"strconv"
+	"time"
 )
 
 type GameUI interface {
@@ -87,6 +89,7 @@ func createPreviews(ui GameUI) {
 }
 
 func Run(ui GameUI) {
+	rand.Seed(time.Now().UnixNano())
 	isReplayed := true
 	for isReplayed {
 		ui.Init()
