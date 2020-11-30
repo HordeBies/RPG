@@ -161,6 +161,94 @@ func currTileChangeMenu(ui *UI2d) {
 	}
 }
 
+type editMenuObj struct {
+	levelRelativity
+}
+
+func createEditMenu(ui *UI2d) {
+	ui.editMenu = editMenuObj{}
+	ui.editMenu.levelRelativity = levelRelativity{0, 0, 25, 19, 0, 0, 50}
+}
+
+func updateEditRelativity(ui *UI2d) {
+	if ui.input.currKeyState[sdl.SCANCODE_RIGHT] != 0 && ui.input.prevKeyState[sdl.SCANCODE_RIGHT] == 0 {
+		if ui.editMenu.endX+25 < 100 {
+			ui.editMenu.startX += 25
+			ui.editMenu.endX += 25
+			ui.editMenu.relativeX -= 800
+		}
+	}
+	if ui.input.currKeyState[sdl.SCANCODE_LEFT] != 0 && ui.input.prevKeyState[sdl.SCANCODE_LEFT] == 0 {
+		if ui.editMenu.startX-25 >= 0 {
+			ui.editMenu.startX -= 25
+			ui.editMenu.endX -= 25
+			ui.editMenu.relativeX += 800
+		}
+	}
+	if ui.input.currKeyState[sdl.SCANCODE_UP] != 0 && ui.input.prevKeyState[sdl.SCANCODE_UP] == 0 {
+		if ui.editMenu.starY-19 >= 0 {
+			ui.editMenu.starY -= 19
+			ui.editMenu.endY -= 19
+			ui.editMenu.relativeY += 600
+		}
+	}
+	if ui.input.currKeyState[sdl.SCANCODE_DOWN] != 0 && ui.input.prevKeyState[sdl.SCANCODE_DOWN] == 0 {
+		if ui.editMenu.endY+19 < 100 {
+			ui.editMenu.starY += 19
+			ui.editMenu.endY += 19
+			ui.editMenu.relativeY -= 600
+		}
+	}
+}
+
+func showEditLevel(ui *UI2d) {
+	startX := ui.editMenu.startX
+	starY := ui.editMenu.starY
+	endX := ui.editMenu.endX
+	endY := ui.editMenu.endY
+
+	for y := starY; y < endY; y++ {
+		for x := startX; x < endX; x++ {
+			if ui.background.dstRect[y][x] != nil {
+				renderer.Copy(textureAtlas, ui.background.srcRect[y][x], &sdl.Rect{(int32(x) * 32) % 800, (int32(y) * 32) % 600, 32, 32})
+			}
+		}
+	}
+	relativeX := ui.editMenu.relativeX
+	relativeY := ui.editMenu.relativeY
+	for _, intf := range ui.background.entities {
+		obj := intf.(entityInterface)
+		renderer.Copy(textureAtlas, obj.getRect(), &sdl.Rect{int32(obj.getX() + relativeX), int32(obj.getY() + relativeY), 32, 32})
+	}
+}
+
+func editMenuMiniMap(ui *UI2d) {
+	scale := ui.editMenu.scale
+	for y := 0; y < scale; y++ {
+		for x := 0; x < scale*4/3; x++ {
+			if ui.background.srcRect[y][x] != nil {
+				renderer.Copy(textureAtlas, ui.background.srcRect[y][x], &sdl.Rect{600 / int32(scale) * int32(x), 600 / int32(scale) * int32(y), int32((600 / scale)), int32((600 / scale))})
+			}
+		}
+	}
+	for _, intf := range ui.background.entities {
+		obj := intf.(entityInterface)
+		renderer.Copy(textureAtlas, obj.getRect(), &sdl.Rect{600 / int32(scale) * int32(obj.getX()/32), 600 / int32(scale) * int32(obj.getY()/32), int32((600 / scale)), int32((600 / scale))})
+	}
+}
+func updateEditScale(ui *UI2d) {
+	if ui.input.currKeyState[sdl.SCANCODE_PAGEDOWN] != 0 && ui.input.prevKeyState[sdl.SCANCODE_PAGEDOWN] == 0 {
+		if ui.editMenu.scale+10 <= 100 {
+			ui.editMenu.scale += 10
+		}
+	}
+	if ui.input.currKeyState[sdl.SCANCODE_PAGEUP] != 0 && ui.input.prevKeyState[sdl.SCANCODE_PAGEUP] == 0 {
+		if ui.editMenu.scale-10 > 0 {
+			ui.editMenu.scale -= 10
+		}
+	}
+}
+
 func editMenu(ui *UI2d) stateFunc {
 	//fmt.Println("edit Menu")
 	if ui.input.currKeyState[sdl.SCANCODE_S] == 0 && ui.input.prevKeyState[sdl.SCANCODE_S] != 0 {
@@ -172,21 +260,16 @@ func editMenu(ui *UI2d) stateFunc {
 	renderer.Copy(mainMenuBackground, nil, nil)
 	//renderer.Copy(blackPixel, nil, &sdl.Rect{0, 0, winWidth, winHeight})
 
-	for y := 0; y < 100; y++ {
-		for x := 0; x < 100; x++ {
-			if ui.background.dstRect[y][x] != nil {
-				renderer.Copy(textureAtlas, ui.background.srcRect[y][x], ui.background.dstRect[y][x])
-			}
-		}
-	}
-	for _, intf := range ui.background.entities {
-		obj := intf.(entityInterface)
-		renderer.Copy(textureAtlas, obj.getRect(), &sdl.Rect{int32(obj.getX()), int32(obj.getY()), 32, 32})
-	}
-
-	if ui.input.currKeyState[sdl.SCANCODE_TAB] != 0 || ui.input.currKeyState[sdl.SCANCODE_LSHIFT] != 0 {
-		currTileChangeMenu(ui)
+	if ui.input.currKeyState[sdl.SCANCODE_TAB] != 0 {
+		updateEditScale(ui)
+		editMenuMiniMap(ui)
 	} else {
+		showEditLevel(ui)
+	}
+	if ui.input.currKeyState[sdl.SCANCODE_LSHIFT] != 0 {
+		currTileChangeMenu(ui)
+	} else if ui.input.currKeyState[sdl.SCANCODE_TAB] == 0 {
+		updateEditRelativity(ui)
 		editTile(ui)
 	}
 
@@ -323,20 +406,19 @@ func updatePreviewRelativity(ui *UI2d) {
 		if ui.selectMenu.starY-19 >= 0 {
 			ui.selectMenu.starY -= 19
 			ui.selectMenu.endY -= 19
-			ui.selectMenu.relativeY += 650
+			ui.selectMenu.relativeY += 600
 		}
 	}
 	if ui.input.currKeyState[sdl.SCANCODE_DOWN] != 0 && ui.input.prevKeyState[sdl.SCANCODE_DOWN] == 0 {
 		if ui.selectMenu.endY+19 < 100 {
 			ui.selectMenu.starY += 19
 			ui.selectMenu.endY += 19
-			ui.selectMenu.relativeY -= 650
+			ui.selectMenu.relativeY -= 600
 		}
 	}
 }
 
 func showPreview(level *layer, ui *UI2d) {
-	// every tile cost 32 pixels w,32 pixels h,
 	startX := ui.selectMenu.startX
 	starY := ui.selectMenu.starY
 	endX := ui.selectMenu.endX

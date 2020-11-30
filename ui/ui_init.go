@@ -55,6 +55,7 @@ type UI2d struct {
 	input         *inputState
 	mainMenu      mainMenuObj
 	selectMenu    selectMenuObj
+	editMenu      editMenuObj
 	endMenu       endMenuObj
 }
 
@@ -67,6 +68,7 @@ func (ui *UI2d) Init() {
 	input.updateKeyboardState()
 	ui.input = &input
 	createSelectMenu(ui)
+	createEditMenu(ui)
 	endMenuInit(ui)
 }
 
