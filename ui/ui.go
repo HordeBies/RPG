@@ -193,6 +193,39 @@ func (ui *UI2d) AddPreview(level game.Level) {
 	}
 }
 
+func (ui *UI2d) ReCreatePreview(level game.Level, index int) {
+	for y := range ui.levelPreviews[index].srcRect {
+		for x := range ui.levelPreviews[index].srcRect[y] {
+			ui.levelPreviews[index].srcRect[y][x] = nil
+			ui.levelPreviews[index].dstRect[y][x] = nil
+		}
+	}
+
+	gridWorld := level.GridWorld
+	for y, row := range gridWorld.Rows {
+		for x, grid := range row.Grids {
+
+			layer := grid.Background
+			if layer != game.Blank {
+				srcRects := textureIndex[layer]
+				ui.levelPreviews[index].srcRect[y][x] = &srcRects[rand.Intn(len(srcRects))]
+				ui.levelPreviews[index].dstRect[y][x] = &sdl.Rect{X: 150 + int32(x)*32, Y: int32(y) * 32, W: 32, H: 32}
+
+				renderer.Copy(textureAtlas, ui.levelPreviews[index].srcRect[y][x], ui.levelPreviews[index].dstRect[y][x])
+			} else {
+				ui.levelPreviews[index].srcRect[y][x] = nil
+				ui.levelPreviews[index].dstRect[y][x] = nil
+			}
+
+		}
+
+	}
+	ui.levelPreviews[index].entities = ui.levelPreviews[index].entities[0:0]
+	for _, obj := range level.Entities {
+		ui.levelPreviews[index].entities = append(ui.levelPreviews[index].entities, getEntity(obj))
+	}
+}
+
 func determineToken(ui *UI2d) stateFunc {
 	switch currentState {
 	case mainScreen:
