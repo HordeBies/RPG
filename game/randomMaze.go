@@ -180,6 +180,7 @@ func createEntities(levelName string) {
 	var stack []pair
 	startX := 1
 	startY := 1
+	file2.WriteString("P " + strconv.Itoa(startX*32) + "," + strconv.Itoa(startY*32) + "\n")
 	stack = append(stack, pair{startX, startY})
 
 	for y := 0; y < 100; y++ {
@@ -201,7 +202,7 @@ func createEntities(levelName string) {
 				dC, locSlice := depthCount(currLoc, loc)
 				if dC > 2 {
 					file2.WriteString("| " + strconv.Itoa(locSlice[0].x*32) + "," + strconv.Itoa(locSlice[0].y*32) + "\n")
-					file2.WriteString("P " + strconv.Itoa(locSlice[1].x*32) + "," + strconv.Itoa(locSlice[1].y*32) + "\n")
+					file2.WriteString("m " + strconv.Itoa(locSlice[1].x*32) + "," + strconv.Itoa(locSlice[1].y*32) + "\n")
 					/*if rand.Intn(2) == 1 {
 						file2.WriteString("C " + strconv.Itoa(locSlice[2].x*32) + "," + strconv.Itoa(locSlice[2].y*32) + "\n")
 					} else {

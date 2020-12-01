@@ -62,8 +62,8 @@ type mainCharacter struct {
 	entity
 }
 
-func createMainCharacter(obj game.Entity) mainCharacter {
-	return mainCharacter{entity{obj.X, obj.Y, &textureIndex[obj.Tile][0]}}
+func createMainCharacter(obj game.Entity) *mainCharacter {
+	return &mainCharacter{entity{obj.X, obj.Y, &textureIndex[obj.Tile][0]}}
 }
 
 func (mc mainCharacter) getX() int {
@@ -99,4 +99,22 @@ func (c chest) getY() int {
 }
 func (c chest) getRect() *sdl.Rect {
 	return c.srcRect
+}
+
+type monster struct {
+	entity
+}
+
+func createMonster(obj game.Entity) monster {
+	return monster{entity{obj.X, obj.Y, &textureIndex[obj.Tile][0]}}
+}
+
+func (m monster) getX() int {
+	return m.x
+}
+func (m monster) getY() int {
+	return m.y
+}
+func (m monster) getRect() *sdl.Rect {
+	return m.srcRect
 }

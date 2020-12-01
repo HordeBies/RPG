@@ -50,6 +50,7 @@ var editingTileSlice = []game.Tile{
 	game.MainCharacter,
 	game.ChestC,
 	game.ChestO,
+	game.Monster,
 }
 var globalLevel *game.Level
 
@@ -124,10 +125,11 @@ func editTile(ui *UI2d) {
 }
 
 func currTileChangeMenu(ui *UI2d) {
-	var x int32 = 300
-	var y int32 = 200
+
 	var w int = 240
-	var h int = 152 + 48
+	var h int = int(math.Ceil(float64(len(editingTileSlice))/3.0))*76 + 48
+	var x int32 = int32(800-w) / 2
+	var y int32 = int32(600-h) / 2
 	var tileTabDst []*sdl.Rect
 	renderer.Copy(ui.mainMenu.infoTab, &sdl.Rect{0, 0, 1, 1}, &sdl.Rect{x, y, int32(w), int32(h)})
 	j := 0

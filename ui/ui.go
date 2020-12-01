@@ -125,6 +125,8 @@ func getEntity(obj game.Entity) entityInterface {
 		return createMainCharacter(obj)
 	case 'C', 'c':
 		return createChest(obj)
+	case 'm':
+		return createMonster(obj)
 	}
 	panic("error")
 }
@@ -161,6 +163,7 @@ func createLayers(level *game.Level, ui *UI2d) {
 	for _, obj := range level.Entities {
 		ui.background.entities = append(ui.background.entities, getEntity(obj))
 	}
+	ui.mc = ui.background.entities[0].(*mainCharacter)
 }
 
 func (ui *UI2d) AddPreview(level game.Level) {
