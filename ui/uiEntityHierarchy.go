@@ -5,6 +5,13 @@ import (
 	"github.com/veandco/go-sdl2/sdl"
 )
 
+var chestSrcStorage []*sdl.Rect
+
+func initEntityInterface(ui *UI2d) {
+	chestSrcStorage = append(chestSrcStorage, &textureIndex[game.ChestC][0])
+	chestSrcStorage = append(chestSrcStorage, &textureIndex[game.ChestO][0])
+}
+
 type entityInterface interface {
 	getX() int
 	getY() int
@@ -28,15 +35,15 @@ type entity struct {
 
 type Door struct {
 	entity
-	is_open bool
-	//srcRectStorage []*sdl.Rect
+	is_open    bool
+	srcStorage []*sdl.Rect
 }
 
 func newDoor(obj game.Entity) *Door {
 	if obj.Tile == game.DoorC {
-		return &Door{entity{obj.X, obj.Y, &textureIndex[obj.Tile][0]}, false} // , make([]*sdl.Rect, 2)
+		return &Door{entity{obj.X, obj.Y, &textureIndex[obj.Tile][0]}, false, nil} // , make([]*sdl.Rect, 2)
 	} else if obj.Tile == game.DoorO {
-		return &Door{entity{obj.X, obj.Y, &textureIndex[obj.Tile][0]}, true}
+		return &Door{entity{obj.X, obj.Y, &textureIndex[obj.Tile][0]}, true, nil}
 	}
 	panic("error")
 }
@@ -67,4 +74,29 @@ func (mc mainCharacter) getY() int {
 }
 func (mc mainCharacter) getRect() *sdl.Rect {
 	return mc.srcRect
+}
+
+type chest struct {
+	entity
+	isOpen     bool
+	srcStorage []*sdl.Rect
+}
+
+func createChest(obj game.Entity) chest {
+	if obj.Tile == game.ChestC {
+		return chest{entity{obj.X, obj.Y, &textureIndex[obj.Tile][0]}, false, chestSrcStorage}
+	} else if obj.Tile == game.ChestO {
+		return chest{entity{obj.X, obj.Y, &textureIndex[obj.Tile][0]}, true, chestSrcStorage}
+	}
+	panic("panic")
+}
+
+func (c chest) getX() int {
+	return c.x
+}
+func (c chest) getY() int {
+	return c.y
+}
+func (c chest) getRect() *sdl.Rect {
+	return c.srcRect
 }

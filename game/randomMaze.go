@@ -42,8 +42,6 @@ type pair struct {
 	x, y int
 }
 
-var seed int64 = 1
-
 func emptyGridWorld() {
 	for y := 0; y < 100; y++ {
 		for x := 0; x < 100; x++ {
@@ -204,7 +202,12 @@ func createEntities(levelName string) {
 				if dC > 2 {
 					file2.WriteString("| " + strconv.Itoa(locSlice[0].x*32) + "," + strconv.Itoa(locSlice[0].y*32) + "\n")
 					file2.WriteString("P " + strconv.Itoa(locSlice[1].x*32) + "," + strconv.Itoa(locSlice[1].y*32) + "\n")
-					file2.WriteString("P " + strconv.Itoa(locSlice[2].x*32) + "," + strconv.Itoa(locSlice[2].y*32) + "\n")
+					/*if rand.Intn(2) == 1 {
+						file2.WriteString("C " + strconv.Itoa(locSlice[2].x*32) + "," + strconv.Itoa(locSlice[2].y*32) + "\n")
+					} else {
+						file2.WriteString("c " + strconv.Itoa(locSlice[2].x*32) + "," + strconv.Itoa(locSlice[2].y*32) + "\n")
+					}*/
+					file2.WriteString("C " + strconv.Itoa(locSlice[2].x*32) + "," + strconv.Itoa(locSlice[2].y*32) + "\n")
 				}
 			}
 		}
@@ -215,7 +218,6 @@ func createEntities(levelName string) {
 }
 
 func CreateRandomMaze(levelName string, ui GameUI) Level {
-	seed++
 	createBackground(levelName)
 	createEntities(levelName)
 	level := Level{}

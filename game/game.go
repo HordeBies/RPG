@@ -23,6 +23,8 @@ const (
 	DoorO         Tile = '-'
 	Blank         Tile = 0
 	MainCharacter Tile = 'P'
+	ChestC        Tile = 'C'
+	ChestO        Tile = 'c'
 )
 
 type Grid struct {
@@ -74,6 +76,10 @@ func (tile Tile) toString() string {
 		return " "
 	case MainCharacter:
 		return "P"
+	case ChestC:
+		return "C"
+	case ChestO:
+		return "c"
 	default:
 		panic("unknown toString tile")
 	}
