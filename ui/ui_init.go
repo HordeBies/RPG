@@ -48,7 +48,7 @@ type layer struct {
 type UI2d struct {
 	levelPreviews []layer
 	background    layer
-	mc            mainCharacter
+	mc            *mainCharacter
 	input         *inputState
 	mainMenu      mainMenuObj
 	selectMenu    selectMenuObj

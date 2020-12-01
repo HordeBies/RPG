@@ -27,6 +27,8 @@ func getTile(c rune) (t Tile) {
 		t = ChestC
 	case 'c':
 		t = ChestO
+	case 'm':
+		t = Monster
 	default:
 		fmt.Println(c)
 		panic("unknown gridworld mapping")
