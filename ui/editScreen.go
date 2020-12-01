@@ -34,7 +34,9 @@ func getTileType() int {
 		return 0
 	case game.MainCharacter:
 		return 1
-	case game.DoorC:
+	case game.DoorC, game.DoorO:
+		return 1
+	case game.ChestC, game.ChestO:
 		return 1
 	default:
 		panic("unknown tile in getTileLayer")
@@ -46,10 +48,12 @@ var editingTileSlice = []game.Tile{
 	game.StoneWall,
 	game.DoorC,
 	game.MainCharacter,
+	game.ChestC,
+	game.ChestO,
 }
 var globalLevel *game.Level
 
-func addToGridWorld(x, y, l int, tile game.Tile) {
+func addToGridWorld(x, y int, tile game.Tile) {
 	gridY := len(globalLevel.GridWorld.Rows)
 	for gridY < y+1 {
 		globalLevel.GridWorld.Rows = append(globalLevel.GridWorld.Rows, game.Row{})
@@ -71,24 +75,25 @@ func addToGridWorld(x, y, l int, tile game.Tile) {
 
 func editTile(ui *UI2d) {
 	if ui.input.leftButton { // && !ui.input.prevLeftButton
-		x := int(math.Floor(float64(ui.input.x) / 32))
-		y := int(math.Floor(float64(ui.input.y) / 32))
+		x := int(math.Floor(float64(ui.input.x)/32)) + ui.editMenu.startX
+		y := int(math.Floor(float64(ui.input.y)/32)) + ui.editMenu.starY
 		l := getTileType()
 		if ui.background.dstRect[y][x] == nil && l == 0 {
 			ui.background.srcRect[y][x] = &textureIndex[editingTile][rand.Intn(len(textureIndex[editingTile]))]
 			ui.background.dstRect[y][x] = &sdl.Rect{X: int32(x) * 32, Y: int32(y) * 32, W: 32, H: 32}
-			addToGridWorld(x, y, l, editingTile)
+			addToGridWorld(x, y, editingTile)
 		} else if l == 1 && !ui.input.prevLeftButton {
 			globalLevel.Entities = append(globalLevel.Entities, game.Entity{x * 32, y * 32, editingTile})
 			ui.background.entities = append(ui.background.entities, getEntity(globalLevel.Entities[len(globalLevel.Entities)-1]))
 		}
 
 	}
-	if ui.input.rightButton { //&&
-		//isDeleted := false
-		x := int(math.Floor(float64(ui.input.x) / 32))
-		y := int(math.Floor(float64(ui.input.y) / 32))
-		if len(ui.background.entities) > 0 && !ui.input.prevRightButton {
+
+	if ui.input.rightButton && !ui.input.prevRightButton { //&&
+		isDeleted := false
+		x := int(math.Floor(float64(ui.input.x)/32)) + ui.editMenu.startX
+		y := int(math.Floor(float64(ui.input.y)/32)) + ui.editMenu.starY
+		if len(ui.background.entities) > 0 {
 			for i, intf := range ui.background.entities {
 				obj := intf.(entityInterface)
 				if ui.input.x < obj.getX()+32 && ui.input.x >= obj.getX() && ui.input.y < obj.getY()+32 && ui.input.y >= obj.getY() {
@@ -99,11 +104,11 @@ func editTile(ui *UI2d) {
 						ui.background.entities = ui.background.entities[0:0]
 						globalLevel.Entities = globalLevel.Entities[0:0]
 					}
-					//isDeleted = true
+					isDeleted = true
 				}
 			}
 		}
-		if ui.background.dstRect[y][x] != nil { //!isDeleted &&
+		if !isDeleted && ui.background.dstRect[y][x] != nil { //!isDeleted &&
 			ui.background.dstRect[y][x] = nil
 			ui.background.srcRect[y][x] = nil
 			globalLevel.GridWorld.Rows[y].Grids[x].Background = game.Blank
@@ -125,10 +130,13 @@ func currTileChangeMenu(ui *UI2d) {
 	var h int = 152 + 48
 	var tileTabDst []*sdl.Rect
 	renderer.Copy(ui.mainMenu.infoTab, &sdl.Rect{0, 0, 1, 1}, &sdl.Rect{x, y, int32(w), int32(h)})
+	j := 0
 	for i, tile := range editingTileSlice {
-		if 76*(i+1) > w {
+		if 76*(j+1) > w {
 			y = y + 76
+			j = 0
 		}
+		j++
 		if editingTile == tile {
 			px := createOnePixel(255, 255, 255, 200)
 			renderer.Copy(px, nil, &sdl.Rect{x + 6 + (int32(76*i))%int32(w-12), y, 76, 76})
@@ -153,7 +161,7 @@ func currTileChangeMenu(ui *UI2d) {
 			}
 		}
 		if clickRect.HasIntersection(&sdl.Rect{x, y, 25*1.5 - 0.5, 32 * 1.5}) || clickRect.HasIntersection(&sdl.Rect{x + 24*1.5, y + 4, 55*1.5 - .5, 25 * 1.6}) {
-			game.Save(globalLevel)
+			go game.Save(globalLevel)
 			currentState = endScreen
 		}
 	}
@@ -250,7 +258,7 @@ func updateEditScale(ui *UI2d) {
 func editMenu(ui *UI2d) stateFunc {
 	//fmt.Println("edit Menu")
 	if ui.input.currKeyState[sdl.SCANCODE_S] == 0 && ui.input.prevKeyState[sdl.SCANCODE_S] != 0 {
-		game.Save(globalLevel)
+		go game.Save(globalLevel)
 		fmt.Println("saving done")
 	}
 	checkEditingTileChange(ui)

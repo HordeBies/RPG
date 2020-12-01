@@ -2,11 +2,13 @@ package ui
 
 import (
 	"bufio"
+	"fmt"
 	"image/png"
 	"math/rand"
 	"os"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/BiesGo/sdlWorkSpace/rpg/game"
 	"github.com/veandco/go-sdl2/sdl"
@@ -121,6 +123,8 @@ func getEntity(obj game.Entity) entityInterface {
 		return newDoor(obj)
 	case 'P':
 		return createMainCharacter(obj)
+	case 'C', 'c':
+		return createChest(obj)
 	}
 	panic("error")
 }
@@ -193,7 +197,8 @@ func (ui *UI2d) AddPreview(level game.Level) {
 	}
 }
 
-func (ui *UI2d) ReCreatePreview(level game.Level, index int) {
+func (ui *UI2d) ReCreatePreview(levelName string, index int) {
+	level := game.CreateRandomMaze(levelName, ui)
 	for y := range ui.levelPreviews[index].srcRect {
 		for x := range ui.levelPreviews[index].srcRect[y] {
 			ui.levelPreviews[index].srcRect[y][x] = nil
@@ -277,7 +282,7 @@ func (ui *UI2d) Draw(level *game.Level, startingState bool) bool {
 	createLayers(level, ui)
 
 	for {
-		//currTime := time.Now()
+		currTime := time.Now()
 		for event := sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
 			switch event.(type) { // theEvent := event.(type) //remember this
 			case *sdl.QuitEvent:
@@ -296,8 +301,13 @@ func (ui *UI2d) Draw(level *game.Level, startingState bool) bool {
 
 		ui.input.updateKeyboardState()
 		ui.input.updateMouseState()
-		//fmt.Println(time.Since(currTime).Milliseconds())
-		sdl.Delay(16)
+		elapsedTime := time.Since(currTime).Milliseconds()
+		if elapsedTime > 10 {
+			fmt.Println(elapsedTime)
+		}
+		if elapsedTime < 16 {
+			sdl.Delay(uint32(16 - elapsedTime))
+		}
 	}
 }
 
@@ -308,7 +318,7 @@ func (ui *UI2d) SelectLevel() (*game.Level, bool) {
 	globalLevel = nil
 	//start := time.Now()
 	for {
-		//currTime := time.Now()
+		currTime := time.Now()
 		for event := sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
 			switch event.(type) { // theEvent := event.(type) //remember this
 			case *sdl.QuitEvent:
@@ -324,7 +334,12 @@ func (ui *UI2d) SelectLevel() (*game.Level, bool) {
 
 		ui.input.updateKeyboardState()
 		ui.input.updateMouseState()
-		//fmt.Println(time.Since(currTime).Milliseconds())
-		sdl.Delay(16)
+		elapsedTime := time.Since(currTime).Milliseconds()
+		if elapsedTime > 10 {
+			fmt.Println(elapsedTime)
+		}
+		if elapsedTime < 16 {
+			sdl.Delay(uint32(16 - elapsedTime))
+		}
 	}
 }
