@@ -265,6 +265,22 @@ func editMenu(ui *UI2d) stateFunc {
 	}
 	checkEditingTileChange(ui)
 
+	// for entity object pointer testing
+	if kbEvent.State == sdl.PRESSED {
+		if kbEvent.Keysym.Scancode == sdl.SCANCODE_KP_6 && ui.mc.x < 3168 {
+			ui.mc.x += 32
+		}
+		if kbEvent.Keysym.Scancode == sdl.SCANCODE_KP_4 && ui.mc.x >= 32 {
+			ui.mc.x -= 32
+		}
+		if kbEvent.Keysym.Scancode == sdl.SCANCODE_KP_5 && ui.mc.y < 3168 {
+			ui.mc.y += 32
+		}
+		if kbEvent.Keysym.Scancode == sdl.SCANCODE_KP_8 && ui.mc.y >= 32 {
+			ui.mc.y -= 32
+		}
+	} // end
+
 	renderer.Copy(mainMenuBackground, nil, nil)
 	//renderer.Copy(blackPixel, nil, &sdl.Rect{0, 0, winWidth, winHeight})
 

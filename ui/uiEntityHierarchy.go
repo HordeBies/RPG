@@ -82,11 +82,11 @@ type chest struct {
 	srcStorage []*sdl.Rect
 }
 
-func createChest(obj game.Entity) chest {
+func createChest(obj game.Entity) *chest {
 	if obj.Tile == game.ChestC {
-		return chest{entity{obj.X, obj.Y, &textureIndex[obj.Tile][0]}, false, chestSrcStorage}
+		return &chest{entity{obj.X, obj.Y, &textureIndex[obj.Tile][0]}, false, chestSrcStorage}
 	} else if obj.Tile == game.ChestO {
-		return chest{entity{obj.X, obj.Y, &textureIndex[obj.Tile][0]}, true, chestSrcStorage}
+		return &chest{entity{obj.X, obj.Y, &textureIndex[obj.Tile][0]}, true, chestSrcStorage}
 	}
 	panic("panic")
 }
@@ -105,8 +105,8 @@ type monster struct {
 	entity
 }
 
-func createMonster(obj game.Entity) monster {
-	return monster{entity{obj.X, obj.Y, &textureIndex[obj.Tile][0]}}
+func createMonster(obj game.Entity) *monster {
+	return &monster{entity{obj.X, obj.Y, &textureIndex[obj.Tile][0]}}
 }
 
 func (m monster) getX() int {

@@ -22,6 +22,7 @@ const (
 )
 
 var currentState gameState = mainScreen
+var kbEvent sdl.KeyboardEvent
 
 var renderer *sdl.Renderer
 var textureAtlas *sdl.Texture
