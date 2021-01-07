@@ -292,14 +292,16 @@ func (ui *UI2d) Draw(level *game.Level, startingState bool) bool {
 				return false
 			}
 		}
+
+		// Runs the main function of the current screen
 		determineToken(ui)
+
 		if ui.endMenu.isTerminated {
-			return false
+			return false // with this return value, the infinite loop in the game.Run becomes broken so that game screen ends
 		}
 		if ui.endMenu.isRestarted {
 			return true
 		}
-		//fmt.Println(ui.layers[1].srcRect[0][0], ui.layers[1].dstRect[0][0])
 		renderer.Present()
 
 		ui.input.updateKeyboardState()

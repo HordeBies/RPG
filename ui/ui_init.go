@@ -29,6 +29,9 @@ var textureIndex map[game.Tile][]sdl.Rect
 var blackPixel *sdl.Texture
 var font *ttf.Font
 
+// TODO -> TO PLAY THE GAME FOR NOW, but should be changed with a smarter way
+var GlobalLevel2 *game.Level2
+
 type inputState struct {
 	leftButton      bool
 	prevLeftButton  bool
@@ -99,5 +102,7 @@ func init() {
 	blackPixel = createOnePixel(0, 0, 0, 0)
 	textureAtlas = imgFileToTexture("ui/assets/tiles.png")
 	loadTextureIndex()
+
+	GlobalLevel2 = game.LoadLevelFromFile2("game/maps/new.map")
 
 }

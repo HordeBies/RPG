@@ -22,13 +22,13 @@ const (
 	StoneWall     Tile = '#'
 	DirtFloor     Tile = '.'
 	DoorC         Tile = '|'
-	DoorO         Tile = '-'
+	DoorO         Tile = '/'
 	MainCharacter Tile = 'P'
 	ChestC        Tile = 'C'
 	ChestO        Tile = 'c'
-	Monster       Tile = 'm'
-	Blank         Tile = 0
-	Pending       Tile = -1
+	//Monster       Tile = 'm' // will be used as specific monster like rat or snake etc
+	Blank   Tile = 0
+	Pending Tile = -1
 )
 
 type Grid struct {
@@ -57,9 +57,14 @@ type Entity struct {
 type Character struct {
 	Entity
 	Hitpoints    int
+	Name         string
 	Strength     int
 	Speed        float64
 	ActionPoints float64
+}
+
+type Monster struct {
+	Character
 }
 
 type Player struct {
@@ -77,9 +82,9 @@ type Level struct {
 }
 
 type Level2 struct {
-	Map    [][]Tile
-	Player *Player
-	//Monsters map[Pos]*Monster
+	Map      [][]Tile
+	Player   *Player
+	Monsters map[Pos]*Monster
 	//Debug    map[Pos]bool
 }
 
