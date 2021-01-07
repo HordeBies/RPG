@@ -254,5 +254,10 @@ func selectMenu(ui *UI2d) stateFunc {
 		currentState = mainScreen
 	}
 
+	// WHEN YOU PRESS 'P' the game will start
+	if ui.input.currKeyState[sdl.SCANCODE_P] != 0 && ui.input.prevKeyState[sdl.SCANCODE_P] == 0 {
+		currentState = playScreen
+	}
+
 	return determineToken
 }

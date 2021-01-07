@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"fmt"
 	"os"
 
 	"github.com/BiesGo/sdlWorkSpace/rpg/game"
@@ -10,13 +9,16 @@ import (
 )
 
 func main() {
+
+	game.GenerateRandomMaze(10, 20)
+
 	file, err := os.Open("./ui/assets/mainMenuInfo.txt")
 	if err != nil {
 		panic(err)
 	}
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
-		fmt.Println(scanner.Text())
+		//fmt.Println(scanner.Text())
 	}
 	ui := &ui.UI2d{}
 	game.Run(ui)

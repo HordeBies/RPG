@@ -1,8 +1,10 @@
 package game
 
 import (
+	"bufio"
 	"fmt"
 	"math/rand"
+	"os"
 	"strconv"
 	"time"
 )
@@ -21,11 +23,12 @@ const (
 	DirtFloor     Tile = '.'
 	DoorC         Tile = '|'
 	DoorO         Tile = '-'
-	Blank         Tile = 0
 	MainCharacter Tile = 'P'
 	ChestC        Tile = 'C'
 	ChestO        Tile = 'c'
 	Monster       Tile = 'm'
+	Blank         Tile = 0
+	Pending       Tile = -1
 )
 
 type Grid struct {
@@ -38,19 +41,130 @@ type Row struct {
 	Grids []Grid
 }
 
+type Pos struct {
+	X, Y int
+}
+
 type GridWorld struct {
 	Rows []Row
 }
 
 type Entity struct {
-	X, Y int
+	Pos
 	Tile Tile
+}
+
+type Character struct {
+	Entity
+	Hitpoints    int
+	Strength     int
+	Speed        float64
+	ActionPoints float64
+}
+
+type Player struct {
+	Character
+}
+
+func (player *Player) Move() {
+
 }
 
 type Level struct {
 	GridWorld GridWorld
 	LevelName string
 	Entities  []Entity
+}
+
+type Level2 struct {
+	Map    [][]Tile
+	Player *Player
+	//Monsters map[Pos]*Monster
+	//Debug    map[Pos]bool
+}
+
+func LoadLevelFromFile2(fileName string) *Level2 {
+	file, err := os.Open(fileName)
+	if err != nil {
+		panic(err)
+	}
+
+	levelLines := make([]string, 0)
+	longestRow := 0
+	index := 0
+
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		levelLines = append(levelLines, scanner.Text())
+		if longestRow < len(levelLines[index]) {
+			longestRow = len(levelLines[index])
+		}
+		index++
+	}
+	defer file.Close()
+
+	level := &Level2{}
+	level.Player = &Player{}
+
+	// TODO where should we initialize the player?
+	level.Player.ActionPoints = 0
+	level.Player.Strength = 5
+	level.Player.Hitpoints = 20
+	level.Player.Tile = 'R'
+	level.Player.Speed = 1.0
+	// level.Player.Name = "PurpleWIZARD"
+
+	level.Map = make([][]Tile, len(levelLines))
+	//level.Monsters = make(map[Pos]*Monster)
+
+	for i := range level.Map {
+		level.Map[i] = make([]Tile, longestRow)
+	}
+
+	for y := 0; y < len(level.Map); y++ {
+		line := levelLines[y]
+		for x, c := range line {
+
+			var t Tile
+			switch c {
+			case ' ', '\t', '\n', '\r':
+				t = Blank
+			case '#':
+				t = StoneWall
+			case '.':
+				t = DirtFloor
+			case '|':
+				t = DoorC
+			case '-':
+				t = DoorO
+			case 'P':
+				level.Player.X = x
+				level.Player.Y = y
+				t = Pending
+			// case 'R':
+			// 	level.Monsters[Pos{x, y}] = NewRat(Pos{x, y})
+			// 	t = Pending
+			// case 'S':
+			// 	level.Monsters[Pos{x, y}] = NewSpider(Pos{x, y})
+			// 	t = Pending
+			default:
+				panic("Invalid character in the map file")
+			}
+			level.Map[y][x] = t
+
+		}
+	}
+
+	// If tile pending, it assigns the background of that tile. E.g. when player is encountered on the map, it puts a dirt floor under that tile
+	for y, row := range level.Map {
+		for x, tile := range row {
+			if tile == Pending {
+				level.Map[y][x] = level.bfsFloor(Pos{x, y})
+			}
+		}
+	}
+
+	return level
 }
 
 func (level *Level) ToString() {

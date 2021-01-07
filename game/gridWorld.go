@@ -122,7 +122,7 @@ func (level *Level) loadLevelFromFile() {
 			panic(err)
 		}
 
-		level.Entities = append(level.Entities, Entity{x, y, getTile(currRune)})
+		level.Entities = append(level.Entities, Entity{Pos{x, y}, getTile(currRune)})
 	}
 
 	/*
