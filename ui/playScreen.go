@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"fmt"
 	"math/rand"
 
 	"github.com/BiesGo/sdlWorkSpace/rpg/game"
@@ -27,15 +28,33 @@ func playMenu(ui *UI2d) stateFunc {
 				dstRect := sdl.Rect{int32(x * 32), int32(y * 32), 32, 32}
 				// for seeing how breadth-first search works, can be said that this is going to be for debugging purposes
 				renderer.Copy(textureAtlas, &srcRect, &dstRect)
+
 			}
 
 		}
 	}
 
-	game.HandleInput(ui.input.currKeyState, ui.input.prevKeyState, newLevel)
+	isInputTaken := game.HandleInput(ui.input.currKeyState, ui.input.prevKeyState, newLevel)
 
 	playerSrcRect := textureIndex['P'][0]
 	renderer.Copy(textureAtlas, &playerSrcRect, &sdl.Rect{int32(newLevel.Player.X) * 32, int32(newLevel.Player.Y) * 32, 32, 32})
+
+	for _, monster := range newLevel.Enemies {
+		monsterSrcrect := textureIndex[game.Tile(monster.Tile)][0]
+		renderer.Copy(textureAtlas, &monsterSrcrect, &sdl.Rect{int32(monster.X) * 32, int32(monster.Y) * 32, 32, 32})
+	}
+
+	// for the sake of TURN BASED Playing ability
+	if isInputTaken {
+		for i, monster := range GlobalLevel2.Enemies {
+			fmt.Println(i, "th monster updated ->", monster)
+			monster.Update(GlobalLevel2)
+		}
+		for _, monster := range newLevel.Enemies {
+			monsterSrcrect := textureIndex[game.Tile(monster.Tile)][0]
+			renderer.Copy(textureAtlas, &monsterSrcrect, &sdl.Rect{int32(monster.X) * 32, int32(monster.Y) * 32, 32, 32})
+		}
+	}
 
 	return determineToken
 }
