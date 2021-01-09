@@ -215,6 +215,8 @@ func selectMenu(ui *UI2d) stateFunc {
 
 	for i, level := range ui.selectMenu.levels {
 		if level.isClicked {
+			GlobalLevel2 = game.LoadLevelFromFile2("game/maps/" + level.levelName + ".map")
+
 			px := createOnePixel(255, 255, 255, 200)
 			renderer.Copy(px, nil, &sdl.Rect{0, int32(40 * i), 110, 40})
 			renderer.Copy(ui.mainMenu.infoTab, nil, &sdl.Rect{5, int32(i*40) + 5, 100, 30})

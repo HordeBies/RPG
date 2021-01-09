@@ -13,7 +13,6 @@ func inRange(level *Level2, pos Pos) bool {
 
 func checkDoor(level *Level2, pos Pos) {
 	t := level.Map[pos.Y][pos.X]
-	fmt.Println(t)
 
 	if t == DoorC {
 		level.Map[pos.Y][pos.X] = DoorO
@@ -182,4 +181,40 @@ func (level *Level2) astar(start Pos, goal Pos) []Pos {
 	}
 
 	return nil
+}
+
+// ContainsEnemy checks whether the given []*Enemy array contains the enemy
+func ContainsEnemy(arr []*Enemy, e *Enemy) bool {
+	for _, v := range arr {
+		if v == e {
+			return true
+		}
+	}
+	return false
+}
+
+// FindIndexOfEnemy returns the index of the enemy from the health bar slice, returns -1 if not found any equality
+func FindIndexOfEnemy(healthBarArr []*Enemy, e *Enemy) int {
+	for i, en := range healthBarArr {
+		if en == e {
+			fmt.Println(i)
+			return i
+		}
+	}
+	return -1
+}
+
+// REMOVE THE DEAD MONSTER FROM THE HEALTH BAR ARRAY
+
+func RemoveEnemyFromHealthArray(arr []*Enemy, e *Enemy) []*Enemy {
+	// var returnArr []*Enemy
+	// for _, m := range arr {
+	// 	if m.Hitpoints > 0 {
+	// 		returnArr = append(returnArr, m)
+	// 	}
+	// }
+	i := FindIndexOfEnemy(arr, e)
+	fmt.Println(i)
+	arr[i] = arr[len(arr)-1]
+	return arr[:len(arr)-1]
 }

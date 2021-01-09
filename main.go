@@ -10,7 +10,7 @@ import (
 
 func main() {
 
-	game.GenerateRandomMaze(10, 20)
+	game.GenerateRandomMaze(30, 30)
 
 	file, err := os.Open("./ui/assets/mainMenuInfo.txt")
 	if err != nil {

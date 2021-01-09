@@ -276,9 +276,23 @@ func generateMapFromMaze(width, height int, maze [][]Cell) [][]Tile {
 		}
 	}
 
-	saveMap(Map, "level4")
+OUTER:
+	for y, row := range Map {
+		for x := range row {
+			if Map[y][x] == '.' {
+				Map[y][x] = 'P'
+				break OUTER
+			}
+		}
+	}
+
+	saveMap(Map, "new")
 
 	return Map
+}
+
+func walkFromPlayerToACornerAndPutADoor(mp [][]Tile, winWidth, winHeight int) {
+
 }
 
 func saveMap(Map [][]Tile, levelName string) {

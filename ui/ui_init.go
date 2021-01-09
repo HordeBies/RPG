@@ -1,12 +1,14 @@
 package ui
 
 import (
+	"strconv"
+
 	"github.com/BiesGo/sdlWorkSpace/rpg/game"
 	"github.com/veandco/go-sdl2/sdl"
 	"github.com/veandco/go-sdl2/ttf"
 )
 
-const winWidth, winHeight = 800, 600
+const winWidth, winHeight = 1280, 720 //800, 600
 
 type stateFunc func(*UI2d) stateFunc
 
@@ -29,8 +31,14 @@ var textureIndex map[game.Tile][]sdl.Rect
 var blackPixel *sdl.Texture
 var font *ttf.Font
 
+var healthBarTextures []*sdl.Texture
+
+//var enemiesForHealthBars []*game.Enemy
+
 // TODO -> TO PLAY THE GAME FOR NOW, but should be changed with a smarter way
 var GlobalLevel2 *game.Level2
+var centerX int
+var centerY int
 
 type inputState struct {
 	leftButton      bool
@@ -73,6 +81,7 @@ func (ui *UI2d) Init() {
 }
 
 func init() {
+	healthBarTextures = make([]*sdl.Texture, 15)
 	ttf.Init()
 	font, _ = ttf.OpenFont("ui/assets/OpenSans-Regular.ttf", 64)
 
@@ -104,5 +113,11 @@ func init() {
 	loadTextureIndex()
 
 	GlobalLevel2 = game.LoadLevelFromFile2("game/maps/new.map")
+	centerX = -1
+	centerY = -1
+
+	for i := 0; i < len(healthBarTextures); i++ {
+		healthBarTextures[i] = imgFileToTexture("ui/assets/healthBars/bar" + strconv.Itoa(i+1) + ".png")
+	}
 
 }

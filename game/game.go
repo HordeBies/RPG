@@ -67,11 +67,12 @@ type Attackable interface {
 //Character is an attackable by implementing the attackable functions
 type Character struct {
 	Entity
-	Hitpoints    int
-	Name         string
-	Strength     int
-	Speed        float64
-	ActionPoints float64
+	Hitpoints     int
+	FullHitpoints int
+	Name          string
+	Strength      int
+	Speed         float64
+	ActionPoints  float64
 }
 
 func (c *Character) GetActionPoints() float64 {
@@ -120,11 +121,11 @@ func (player *Player) Move(to Pos, level *Level2) {
 		fmt.Println(level.Player.Hitpoints, monster.Hitpoints)
 		if monster.Hitpoints <= 0 {
 			delete(level.Enemies, monster.Pos)
+			level.EnemiesForHealthBars = RemoveEnemyFromHealthArray(level.EnemiesForHealthBars, monster)
 		}
 		if level.Player.Hitpoints <= 0 {
 			panic("You Died...")
 		}
-
 		if level.Player.Hitpoints <= 0 {
 			fmt.Println("YOU DIED!!!")
 			panic("YOU DIED!!!")
@@ -140,9 +141,10 @@ type Level struct {
 }
 
 type Level2 struct {
-	Map     [][]Tile
-	Player  *Player
-	Enemies map[Pos]*Enemy
+	Map                  [][]Tile
+	Player               *Player
+	Enemies              map[Pos]*Enemy
+	EnemiesForHealthBars []*Enemy
 	//Debug    map[Pos]bool
 }
 
@@ -171,13 +173,15 @@ func LoadLevelFromFile2(fileName string) *Level2 {
 
 	// TODO where should we initialize the player?
 	level.Player.ActionPoints = 0
-	level.Player.Strength = 1
-	level.Player.Hitpoints = 200
+	level.Player.Strength = 30
+	level.Player.Hitpoints = 300
+	level.Player.FullHitpoints = 300
 	level.Player.Tile = 'R'
 	level.Player.Speed = 1.0
 	level.Player.Name = "PurpleWIZARD"
 
 	level.Map = make([][]Tile, len(levelLines))
+	level.EnemiesForHealthBars = make([]*Enemy, 0)
 	level.Enemies = make(map[Pos]*Enemy)
 
 	for i := range level.Map {
