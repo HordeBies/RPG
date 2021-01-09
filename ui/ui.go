@@ -292,14 +292,16 @@ func (ui *UI2d) Draw(level *game.Level, startingState bool) bool {
 				return false
 			}
 		}
+
+		// Runs the main function of the current screen infinitely somehow (RECURSIVE ABILITY)
 		determineToken(ui)
+
 		if ui.endMenu.isTerminated {
-			return false
+			return false // with this return value, the infinite loop in the game.Run becomes broken so that game screen ends
 		}
 		if ui.endMenu.isRestarted {
 			return true
 		}
-		//fmt.Println(ui.layers[1].srcRect[0][0], ui.layers[1].dstRect[0][0])
 		renderer.Present()
 
 		ui.input.updateKeyboardState()
@@ -319,9 +321,12 @@ var editBeforeStart bool
 func (ui *UI2d) SelectLevel() (*game.Level, bool) {
 	currentState = mainScreen
 	globalLevel = nil
+
+	//TODO ELAPSED TIME IS COMMENTED OUT FROM THE CODE becasue when player moves there was happenening a bad delay on tiles ????
+
 	//start := time.Now()
 	for {
-		currTime := time.Now()
+		//currTime := time.Now()
 		for event := sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
 			switch event.(type) { // theEvent := event.(type) //remember this
 			case *sdl.QuitEvent:
@@ -333,16 +338,18 @@ func (ui *UI2d) SelectLevel() (*game.Level, bool) {
 		if globalLevel != nil {
 			return globalLevel, editBeforeStart
 		}
+
 		renderer.Present()
 
 		ui.input.updateKeyboardState()
 		ui.input.updateMouseState()
-		elapsedTime := time.Since(currTime).Milliseconds()
-		if elapsedTime > 10 {
-			fmt.Println(elapsedTime)
-		}
-		if elapsedTime < 16 {
-			sdl.Delay(uint32(16 - elapsedTime))
-		}
+		// elapsedTime := time.Since(currTime).Milliseconds()
+		// if elapsedTime > 10 {
+		// 	fmt.Println(elapsedTime)
+		// }
+		// if elapsedTime < 16 {
+		// 	sdl.Delay(uint32(16 - elapsedTime))
+		// }
+		sdl.Delay(1)
 	}
 }
