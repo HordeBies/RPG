@@ -308,10 +308,13 @@ func (ui *UI2d) Draw(level *game.Level, startingState bool) bool {
 		ui.input.updateMouseState()
 		elapsedTime := time.Since(currTime).Milliseconds()
 		if elapsedTime > 10 {
-			fmt.Println(elapsedTime)
+			fmt.Println("elapsed time->", elapsedTime)
+			//sdl.Delay(uint32(16 - elapsedTime))
 		}
 		if elapsedTime < 16 {
 			sdl.Delay(uint32(16 - elapsedTime))
+		} else {
+
 		}
 	}
 }
@@ -324,9 +327,8 @@ func (ui *UI2d) SelectLevel() (*game.Level, bool) {
 
 	//TODO ELAPSED TIME IS COMMENTED OUT FROM THE CODE becasue when player moves there was happenening a bad delay on tiles ????
 
-	//start := time.Now()
 	for {
-		//currTime := time.Now()
+		currTime := time.Now()
 		for event := sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
 			switch event.(type) { // theEvent := event.(type) //remember this
 			case *sdl.QuitEvent:
@@ -343,13 +345,13 @@ func (ui *UI2d) SelectLevel() (*game.Level, bool) {
 
 		ui.input.updateKeyboardState()
 		ui.input.updateMouseState()
-		// elapsedTime := time.Since(currTime).Milliseconds()
-		// if elapsedTime > 10 {
-		// 	fmt.Println(elapsedTime)
-		// }
-		// if elapsedTime < 16 {
-		// 	sdl.Delay(uint32(16 - elapsedTime))
-		// }
+
+		elapsedTime := time.Since(currTime).Milliseconds()
+		if elapsedTime < 16 {
+			sdl.Delay(uint32(16 - elapsedTime))
+		} else {
+			fmt.Println("elapsed time->", elapsedTime)
+		}
 		sdl.Delay(1)
 	}
 }

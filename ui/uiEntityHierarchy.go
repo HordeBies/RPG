@@ -105,6 +105,10 @@ type monster struct {
 	entity
 }
 
+type enemy struct {
+	entity
+}
+
 func createMonster(obj game.Entity) monster {
 	return monster{entity{obj.X, obj.Y, &textureIndex[obj.Tile][0]}}
 }
@@ -117,4 +121,17 @@ func (m monster) getY() int {
 }
 func (m monster) getRect() *sdl.Rect {
 	return m.srcRect
+}
+
+func createEnemy(obj game.Entity) enemy {
+	return enemy{entity{obj.X, obj.Y, &textureIndex[obj.Tile][0]}}
+}
+func (e enemy) getX() int {
+	return e.x
+}
+func (e enemy) getY() int {
+	return e.y
+}
+func (e enemy) getRect() *sdl.Rect {
+	return e.srcRect
 }
