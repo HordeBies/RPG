@@ -97,9 +97,11 @@ func updateSelections(ui *UI2d) {
 		if ui.selectMenu.start.dstRect[0].HasIntersection(clickRect) || ui.selectMenu.start.dstRect[1].HasIntersection(clickRect) {
 			for _, level := range ui.selectMenu.levels {
 				if level.isClicked {
-					globalLevel = &game.Level{}
-					globalLevel.LevelName = level.levelName
-					editBeforeStart = false
+					GlobalLevel2 = game.LoadLevelFromFile2("game/maps/" + level.levelName + ".map")
+					currentState = playScreen
+					// globalLevel = &game.Level{}
+					// globalLevel.LevelName = level.levelName
+					// editBeforeStart = false
 					break
 				}
 			}

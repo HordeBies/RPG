@@ -308,7 +308,8 @@ func (ui *UI2d) Draw(level *game.Level, startingState bool) bool {
 		ui.input.updateMouseState()
 		elapsedTime := time.Since(currTime).Milliseconds()
 		if elapsedTime > 10 {
-			fmt.Println(elapsedTime)
+			fmt.Println("elapsed time->", elapsedTime)
+			//sdl.Delay(uint32(16 - elapsedTime))
 		}
 		if elapsedTime < 16 {
 			sdl.Delay(uint32(16 - elapsedTime))

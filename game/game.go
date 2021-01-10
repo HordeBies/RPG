@@ -97,6 +97,7 @@ func (c *Character) GetAttackPower() int {
 
 // Attack -> two attackables like player and a monster are taken as args
 func Attack(a1, a2 Attackable) {
+	// fmt.Println(a1, "  attacks  ", a2)
 	a1.SetActionPoints(a1.GetActionPoints() - 1)
 	a2.SetHitpoints(a2.GetHitpoints() - a1.GetAttackPower())
 	if a2.GetHitpoints() > 0 {
@@ -111,6 +112,14 @@ type Player struct {
 
 func (player *Player) Move(to Pos, level *Level2) {
 	monster, exists := level.Enemies[to]
+	pod, existsPod := level.HealthPots[to]
+
+	if existsPod {
+		fmt.Println(player.Hitpoints)
+		player.Hitpoints += pod.Hitpoint
+		delete(level.HealthPots, pod.Pos)
+		fmt.Println(player.Hitpoints)
+	}
 
 	if !exists {
 		player.Pos = to
@@ -120,7 +129,10 @@ func (player *Player) Move(to Pos, level *Level2) {
 		fmt.Println("Player attacked Monster")
 		fmt.Println(level.Player.Hitpoints, monster.Hitpoints)
 		if monster.Hitpoints <= 0 {
+			pos := monster.Pos
 			delete(level.Enemies, monster.Pos)
+			newPot := &HealthPot{10, pos}
+			level.HealthPots[pos] = newPot
 			level.EnemiesForHealthBars = RemoveEnemyFromHealthArray(level.EnemiesForHealthBars, monster)
 		}
 		if level.Player.Hitpoints <= 0 {
@@ -145,6 +157,7 @@ type Level2 struct {
 	Player               *Player
 	Enemies              map[Pos]*Enemy
 	EnemiesForHealthBars []*Enemy
+	HealthPots           map[Pos]*HealthPot
 	//Debug    map[Pos]bool
 }
 
@@ -182,6 +195,7 @@ func LoadLevelFromFile2(fileName string) *Level2 {
 
 	level.Map = make([][]Tile, len(levelLines))
 	level.EnemiesForHealthBars = make([]*Enemy, 0)
+	level.HealthPots = make(map[Pos]*HealthPot, 0)
 	level.Enemies = make(map[Pos]*Enemy)
 
 	for i := range level.Map {
@@ -202,7 +216,7 @@ func LoadLevelFromFile2(fileName string) *Level2 {
 				t = DirtFloor
 			case '|':
 				t = DoorC
-			case '-':
+			case '/':
 				t = DoorO
 			case 'P':
 				level.Player.X = x

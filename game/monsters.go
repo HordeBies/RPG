@@ -34,6 +34,12 @@ func NewSpider(p Pos) *Enemy {
 	return &monster
 }
 
+// HealthPot is left by dead monsters
+type HealthPot struct {
+	Hitpoint int
+	Pos
+}
+
 func (m *Enemy) Update(level *Level2) {
 	m.ActionPoints = m.Speed // they can move only for the amount of their speed
 	playerPos := level.Player.Pos
@@ -62,8 +68,6 @@ func (m *Enemy) Update(level *Level2) {
 func (m *Enemy) Move(to Pos, level *Level2) {
 	_, exists := level.Enemies[to]
 
-	// TODO check if the tile being moved to its is valid
-	// TODO if player is in the way, attack player
 	if !exists && to != level.Player.Pos {
 		delete(level.Enemies, m.Pos)
 		level.Enemies[to] = m
@@ -73,7 +77,11 @@ func (m *Enemy) Move(to Pos, level *Level2) {
 		if m.Hitpoints <= 0 {
 			fmt.Println("Monster is dead")
 			level.EnemiesForHealthBars = RemoveEnemyFromHealthArray(level.EnemiesForHealthBars, m)
+			pos := m.Pos
 			delete(level.Enemies, m.Pos)
+			newPot := &HealthPot{10, pos}
+			level.HealthPots[pos] = newPot
+			fmt.Println(len(level.HealthPots))
 		}
 	}
 

@@ -34,6 +34,12 @@ func drawHealthBars(c *game.Player) {
 	renderer.Copy(texture, &sdl.Rect{5, 25, 380, 75}, &sdl.Rect{16, 0, 380 / 4, 75 / 4})
 }
 
+func drawPods(level *game.Level2, offsetX, offsetY int32) {
+	for pos := range level.HealthPots {
+		renderer.Copy(potTexture, &sdl.Rect{415, 5, 185, 295}, &sdl.Rect{int32(pos.X)*32 + offsetX + 16, int32(pos.Y)*32 + offsetY + 8, 16, 24})
+	}
+}
+
 func drawHealthBarsEnemy() {
 	i := 0
 	for _, c := range GlobalLevel2.EnemiesForHealthBars {
@@ -67,8 +73,6 @@ func playMenu(ui *UI2d) stateFunc {
 	renderer.Clear()
 
 	newLevel := GlobalLevel2
-
-	drawHealthBars(newLevel.Player)
 
 	r := rand.New(rand.NewSource(1))
 
@@ -110,13 +114,6 @@ func playMenu(ui *UI2d) stateFunc {
 	isInputTaken := game.HandleInput(ui.input.currKeyState, ui.input.prevKeyState, newLevel)
 	renderer.Copy(textureAtlas, &playerSrcRect, &sdl.Rect{int32(newLevel.Player.X)*32 + offsetX, int32(newLevel.Player.Y)*32 + offsetY, 32, 32})
 
-	for _, monster := range newLevel.Enemies {
-		monsterSrcrect := textureIndex[game.Tile(monster.Tile)][0]
-		renderer.Copy(textureAtlas, &monsterSrcrect, &sdl.Rect{int32(monster.X)*32 + offsetX, int32(monster.Y)*32 + offsetY, 32, 32})
-	}
-
-	drawHealthBarsEnemy()
-
 	// for the sake of TURN BASED Playing ability
 	if isInputTaken {
 		for _, monster := range GlobalLevel2.Enemies {
@@ -127,6 +124,15 @@ func playMenu(ui *UI2d) stateFunc {
 			renderer.Copy(textureAtlas, &monsterSrcrect, &sdl.Rect{int32(monster.X)*32 + offsetX, int32(monster.Y)*32 + offsetY, 32, 32})
 		}
 	}
+
+	for _, monster := range newLevel.Enemies {
+		monsterSrcrect := textureIndex[game.Tile(monster.Tile)][0]
+		renderer.Copy(textureAtlas, &monsterSrcrect, &sdl.Rect{int32(monster.X)*32 + offsetX, int32(monster.Y)*32 + offsetY, 32, 32})
+	}
+
+	drawHealthBarsEnemy()
+	drawHealthBars(newLevel.Player)
+	drawPods(newLevel, offsetX, offsetY)
 
 	return determineToken
 }

@@ -32,6 +32,7 @@ var blackPixel *sdl.Texture
 var font *ttf.Font
 
 var healthBarTextures []*sdl.Texture
+var potTexture *sdl.Texture
 
 //var enemiesForHealthBars []*game.Enemy
 
@@ -115,6 +116,7 @@ func init() {
 	GlobalLevel2 = game.LoadLevelFromFile2("game/maps/new.map")
 	centerX = -1
 	centerY = -1
+	potTexture = imgFileToTexture("ui/assets/healthBars/potion.png")
 
 	for i := 0; i < len(healthBarTextures); i++ {
 		healthBarTextures[i] = imgFileToTexture("ui/assets/healthBars/bar" + strconv.Itoa(i+1) + ".png")
