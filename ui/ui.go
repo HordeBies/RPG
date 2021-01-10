@@ -287,13 +287,9 @@ func (ui *UI2d) Draw(level *game.Level, startingState bool) bool {
 	for {
 		currTime := time.Now()
 		for event := sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
-			switch currEvent := event.(type) { // theEvent := event.(type) //remember this
+			switch event.(type) { // theEvent := event.(type) //remember this
 			case *sdl.QuitEvent:
 				return false
-			case *sdl.TextInputEvent:
-				inputChar = currEvent.GetText()
-			case *sdl.KeyboardEvent:
-				kbEvent = *currEvent
 			}
 		}
 
@@ -310,7 +306,6 @@ func (ui *UI2d) Draw(level *game.Level, startingState bool) bool {
 
 		ui.input.updateKeyboardState()
 		ui.input.updateMouseState()
-		kbEvent = sdl.KeyboardEvent{State: sdl.RELEASED}
 		elapsedTime := time.Since(currTime).Milliseconds()
 		if elapsedTime > 10 {
 			fmt.Println(elapsedTime)
@@ -322,7 +317,6 @@ func (ui *UI2d) Draw(level *game.Level, startingState bool) bool {
 }
 
 var editBeforeStart bool
-var inputChar string
 
 func (ui *UI2d) SelectLevel() (*game.Level, bool) {
 	currentState = mainScreen
@@ -334,15 +328,9 @@ func (ui *UI2d) SelectLevel() (*game.Level, bool) {
 	for {
 		//currTime := time.Now()
 		for event := sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
-			switch currEvent := event.(type) { // theEvent := event.(type) //remember this
+			switch event.(type) { // theEvent := event.(type) //remember this
 			case *sdl.QuitEvent:
 				return nil, false
-			case *sdl.TextInputEvent:
-				inputChar = currEvent.GetText()
-			case *sdl.KeyboardEvent:
-				if currEvent.State == sdl.PRESSED && currEvent.Keysym.Scancode == sdl.SCANCODE_RIGHT {
-					fmt.Println("right Arrow")
-				}
 			}
 		}
 		determineToken(ui)
