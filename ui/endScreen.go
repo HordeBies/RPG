@@ -1,6 +1,8 @@
 package ui
 
-import "github.com/veandco/go-sdl2/sdl"
+import (
+	"github.com/veandco/go-sdl2/sdl"
+)
 
 type endMenuObj struct {
 	gameEnd          *sdl.Texture

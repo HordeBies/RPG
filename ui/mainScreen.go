@@ -72,7 +72,6 @@ func createMainMenu(ui *UI2d) {
 			ui.mainMenu.infoStr = append(ui.mainMenu.infoStr, nil)
 		}
 	}
-
 }
 
 func drawMenuButtons(ui *UI2d) {
@@ -101,7 +100,6 @@ func updateMenu(ui *UI2d) {
 		if ui.input.currKeyState[sdl.SCANCODE_ESCAPE] != 0 && ui.input.prevKeyState[sdl.SCANCODE_ESCAPE] == 0 {
 			ui.mainMenu.info.isClicked = false
 		}
-
 	}
 }
 

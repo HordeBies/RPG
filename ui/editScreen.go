@@ -84,7 +84,7 @@ func editTile(ui *UI2d) {
 			ui.background.dstRect[y][x] = &sdl.Rect{X: int32(x) * 32, Y: int32(y) * 32, W: 32, H: 32}
 			addToGridWorld(x, y, editingTile)
 		} else if l == 1 && !ui.input.prevLeftButton {
-			globalLevel.Entities = append(globalLevel.Entities, game.Entity{x * 32, y * 32, editingTile})
+			globalLevel.Entities = append(globalLevel.Entities, game.Entity{game.Pos{x * 32, y * 32}, editingTile})
 			ui.background.entities = append(ui.background.entities, getEntity(globalLevel.Entities[len(globalLevel.Entities)-1]))
 		}
 

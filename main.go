@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"fmt"
 	"os"
 
 	"github.com/BiesGo/sdlWorkSpace/rpg/game"
@@ -10,13 +9,16 @@ import (
 )
 
 func main() {
+
+	game.GenerateRandomMaze(30, 30)
+
 	file, err := os.Open("./ui/assets/mainMenuInfo.txt")
 	if err != nil {
 		panic(err)
 	}
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
-		fmt.Println(scanner.Text())
+		//fmt.Println(scanner.Text())
 	}
 	ui := &ui.UI2d{}
 	game.Run(ui)
@@ -50,4 +52,4 @@ func main() {
 //auto maze builder within scope
 //left right up down buttons for travelling on level(currently left upmost part is shown automaticly)
 // entity collision detection in build menu ie. doors cant overlap & there cant be more than 1 main character
-//...
+// ~H~
