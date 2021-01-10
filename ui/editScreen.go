@@ -36,7 +36,7 @@ func getTileType() int {
 		return 1
 	case game.DoorC, game.DoorO:
 		return 1
-	case game.ChestC, game.ChestO:
+	case game.Spider, game.Rat:
 		return 1
 	default:
 		panic("unknown tile in getTileLayer")
@@ -48,9 +48,8 @@ var editingTileSlice = []game.Tile{
 	game.StoneWall,
 	game.DoorC,
 	game.MainCharacter,
-	game.ChestC,
-	game.ChestO,
-	game.Monster,
+	game.Spider,
+	game.Rat,
 }
 var globalLevel *game.Level
 
@@ -65,10 +64,6 @@ func addToGridWorld(x, y int, tile game.Tile) {
 		globalLevel.GridWorld.Rows[y].Grids = append(globalLevel.GridWorld.Rows[y].Grids, game.Grid{Layers: []game.Tile{}})
 		gridX++
 	}
-	//gridL := len(globalLevel.GridWorld.Rows[y].Grids[x].Layers)
-	/*	if gridL == 0 || globalLevel.GridWorld.Rows[y].Grids[x].Layers == nil {
-		globalLevel.GridWorld.Rows[y].Grids[x].Layers = make([]game.Tile, l+1)
-	}*/
 	if tile == game.Blank || tile == game.DirtFloor || tile == game.StoneWall {
 		globalLevel.GridWorld.Rows[y].Grids[x].Background = tile
 	}
