@@ -12,10 +12,10 @@
 * Then, it's needed to follow the below instructions for installing the SDL2 bindings for go
 
 * [SDL2](http://libsdl.org/download-2.0.php)
-* [SDL2_image (optional)](http://www.libsdl.org/projects/SDL_image/)
-* [SDL2_mixer (optional)](http://www.libsdl.org/projects/SDL_mixer/)
-* [SDL2_ttf (optional)](http://www.libsdl.org/projects/SDL_ttf/)
-* [SDL2_gfx (optional)](http://www.ferzkopp.net/wordpress/2016/01/02/sdl_gfx-sdl2_gfx/)
+* [SDL2_image](http://www.libsdl.org/projects/SDL_image/)
+* [SDL2_mixer](http://www.libsdl.org/projects/SDL_mixer/)
+* [SDL2_ttf](http://www.libsdl.org/projects/SDL_ttf/)
+* [SDL2_gfx](http://www.ferzkopp.net/wordpress/2016/01/02/sdl_gfx-sdl2_gfx/)
 
 Below is some commands that can be used to install the required packages in
 some Linux distributions. Some older versions of the distributions such as
@@ -51,7 +51,7 @@ On __Windows__,
 3. Setup Path environment variable
     * Put your mingw-w64 binaries location into your system Path environment variable. e.g. `C:\Program Files\mingw-w64\x86_64-6.3.0-win32-seh-rt_v5-rev1\mingw64\bin` and `C:\Program Files\mingw-w64\x86_64-6.3.0-win32-seh-rt_v5-rev1\mingw64\x86_64-w64-mingw32\bin`
 4. Open up a terminal such as `Git Bash` and run `go get -v github.com/veandco/go-sdl2/sdl`.
-5. (Optional) You can repeat __Step 2__ for [SDL_image](https://www.libsdl.org/projects/SDL_image), [SDL_mixer](https://www.libsdl.org/projects/SDL_mixer), [SDL_ttf](https://www.libsdl.org/projects/SDL_ttf)
+5. Then you can repeat __Step 2__ for [SDL_image](https://www.libsdl.org/projects/SDL_image), [SDL_mixer](https://www.libsdl.org/projects/SDL_mixer), [SDL_ttf](https://www.libsdl.org/projects/SDL_ttf)
     * NOTE: pre-build the libraries for faster compilation by running `go install github.com/veandco/go-sdl2/{sdl,img,mix,ttf}`
 
 * Or you can install SDL2 via [Msys2](https://msys2.github.io) like so:
@@ -68,5 +68,5 @@ To get the bindings, type:\
 or type this if you use Bash terminal:\
 `go get -v github.com/veandco/go-sdl2/{sdl,img,mix,ttf}`
 ```
-
-Due to `go-sdl2` being under active development, a lot of breaking changes are going to happen during v0.x. With [versioning system](https://github.com/golang/proposal/blob/master/design/24301-versioned-go.md) coming to Go soon, we'll make use of semantic versioning to ensure stability in the future.
+* Finally, import repository into your local, navigate to your local directory and simply type:\
+`go run main.go`
