@@ -127,7 +127,10 @@ func getEntity(obj game.Entity) entityInterface {
 		return createChest(obj)
 	case 'm':
 		return createMonster(obj)
+	case 'R', 'S':
+		return createEnemy(obj)
 	}
+
 	panic("error")
 }
 

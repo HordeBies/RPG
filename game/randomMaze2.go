@@ -306,7 +306,7 @@ func saveMap(Map [][]Tile, levelName string) {
 	for y := range Map {
 		for x := range Map[y] {
 			if Map[y][x] != 0 {
-				file.WriteString(Map[y][x].toString())
+				file.WriteString(Map[y][x].ToString())
 			} else {
 				file.WriteString(" ")
 			}

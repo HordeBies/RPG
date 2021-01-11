@@ -27,6 +27,10 @@ func getTile(c rune) (t Tile) {
 		t = ChestC
 	case 'c':
 		t = ChestO
+	case 'R':
+		t = Rat
+	case 'S':
+		t = Spider
 	case 'm':
 		t = Monster
 	default:
@@ -48,7 +52,7 @@ func Save(level *Level) {
 	for y := range gw.Rows {
 		for x := range gw.Rows[y].Grids {
 			if gw.Rows[y].Grids[x].Background != Blank {
-				file.WriteString(gw.Rows[y].Grids[x].Background.toString())
+				file.WriteString(gw.Rows[y].Grids[x].Background.ToString())
 			} else {
 				file.WriteString(" ")
 			}
@@ -64,11 +68,45 @@ func Save(level *Level) {
 	entityFile.Truncate(0)
 	entityFile.Seek(0, 0)
 	for _, obj := range level.Entities {
-		entityFile.WriteString(obj.Tile.toString() + " " + strconv.Itoa(obj.X) + "," + strconv.Itoa(obj.Y))
+		entityFile.WriteString(obj.Tile.ToString() + " " + strconv.Itoa(obj.X) + "," + strconv.Itoa(obj.Y))
 		entityFile.WriteString("\n")
 	}
 	entityFile.Close()
 }
+
+// func Save2(level *Level2) {
+// 	gw := level.GridWorld
+
+// 	file, err := os.OpenFile("game/maps/"+level.LevelName+".map", os.O_RDWR, 0644)
+// 	if err != nil {
+// 		panic(err)
+// 	}
+// 	file.Truncate(0)
+// 	file.Seek(0, 0)
+// 	for y := range gw.Rows {
+// 		for x := range gw.Rows[y].Grids {
+// 			if gw.Rows[y].Grids[x].Background != Blank {
+// 				file.WriteString(gw.Rows[y].Grids[x].Background.toString())
+// 			} else {
+// 				file.WriteString(" ")
+// 			}
+// 		}
+// 		file.WriteString("\n")
+// 	}
+// 	file.Close()
+
+// 	entityFile, err := os.Create("game/maps/" + level.LevelName + "Entities.map")
+// 	if err != nil {
+// 		panic(err)
+// 	}
+// 	entityFile.Truncate(0)
+// 	entityFile.Seek(0, 0)
+// 	for _, obj := range level.Entities {
+// 		entityFile.WriteString(obj.Tile.toString() + " " + strconv.Itoa(obj.X) + "," + strconv.Itoa(obj.Y))
+// 		entityFile.WriteString("\n")
+// 	}
+// 	entityFile.Close()
+// }
 
 func (level *Level) loadLevelFromFile() {
 	filename := level.LevelName

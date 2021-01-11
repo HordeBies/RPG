@@ -158,6 +158,7 @@ type Level2 struct {
 	Enemies              map[Pos]*Enemy
 	EnemiesForHealthBars []*Enemy
 	HealthPots           map[Pos]*HealthPot
+	FileName             string
 	//Debug    map[Pos]bool
 }
 
@@ -244,6 +245,7 @@ func LoadLevelFromFile2(fileName string) *Level2 {
 			}
 		}
 	}
+	level.FileName = fileName
 
 	return level
 }
@@ -252,14 +254,14 @@ func (level *Level) ToString() {
 	gw := level.GridWorld
 	for y := range gw.Rows {
 		for x := range gw.Rows[y].Grids {
-			fmt.Print(gw.Rows[y].Grids[x].Background.toString())
+			fmt.Print(gw.Rows[y].Grids[x].Background.ToString())
 		}
 		fmt.Println("")
 	}
 }
 
 //TODO check this func to be able to print the map i think... ?
-func (tile Tile) toString() string {
+func (tile Tile) ToString() string {
 	switch tile {
 	case StoneWall:
 		return "#"
@@ -277,8 +279,12 @@ func (tile Tile) toString() string {
 		return "C"
 	case ChestO:
 		return "c"
-	// case Monster:
-	// 	return "m"
+	case Monster:
+		return "m"
+	case Rat:
+		return "R"
+	case Spider:
+		return "S"
 	default:
 		panic("unknown toString tile")
 	}

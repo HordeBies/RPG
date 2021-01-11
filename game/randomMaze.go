@@ -12,7 +12,7 @@ var gridWorld [100][100]Tile
 func printGridWorld() {
 	for y := 0; y < 100; y++ {
 		for x := 0; x < 100; x++ {
-			fmt.Println(gridWorld[y][x].toString())
+			fmt.Println(gridWorld[y][x].ToString())
 		}
 	}
 }
@@ -29,7 +29,7 @@ func saveGridWorld(levelName string) {
 	for y := range gridWorld {
 		for x := range gridWorld[y] {
 			if gridWorld[y][x] != Blank {
-				file.WriteString(gridWorld[y][x].toString())
+				file.WriteString(gridWorld[y][x].ToString())
 			} else {
 				file.WriteString(" ")
 			}

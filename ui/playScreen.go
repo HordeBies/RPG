@@ -91,9 +91,13 @@ func playMenu(ui *UI2d) stateFunc {
 	} else if newLevel.Player.Y < centerY-limit {
 		centerY--
 	}
+	var offsetX int32
+	var offsetY int32
+	lastOffsetX := offsetX
+	lastOffsetY := offsetY
 
-	offsetX := int32((winWidth / 2) - centerX*32)
-	offsetY := int32((winHeight / 2) - centerY*32)
+	offsetX = int32((winWidth / 2) - centerX*32)
+	offsetY = int32((winHeight / 2) - centerY*32)
 
 	for y, row := range newLevel.Map {
 		for x, tile := range row {
@@ -111,8 +115,10 @@ func playMenu(ui *UI2d) stateFunc {
 
 	playerSrcRect := textureIndex['P'][0]
 
+	if lastOffsetX != offsetX || lastOffsetY != offsetY {
+		renderer.Copy(textureAtlas, &playerSrcRect, &sdl.Rect{int32(newLevel.Player.X)*32 + offsetX, int32(newLevel.Player.Y)*32 + offsetY, 32, 32})
+	}
 	isInputTaken := game.HandleInput(ui.input.currKeyState, ui.input.prevKeyState, newLevel)
-	renderer.Copy(textureAtlas, &playerSrcRect, &sdl.Rect{int32(newLevel.Player.X)*32 + offsetX, int32(newLevel.Player.Y)*32 + offsetY, 32, 32})
 
 	// for the sake of TURN BASED Playing ability
 	if isInputTaken {

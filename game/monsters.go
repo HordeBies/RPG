@@ -73,7 +73,9 @@ func (m *Enemy) Move(to Pos, level *Level2) {
 		level.Enemies[to] = m
 		m.Pos = to
 	} else {
-		Attack(m, level.Player)
+		if to.X == level.Player.X && to.Y == level.Player.Y {
+			Attack(m, level.Player)
+		}
 		if m.Hitpoints <= 0 {
 			fmt.Println("Monster is dead")
 			level.EnemiesForHealthBars = RemoveEnemyFromHealthArray(level.EnemiesForHealthBars, m)
