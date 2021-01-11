@@ -113,6 +113,7 @@ func playMenu(ui *UI2d) stateFunc {
 
 	renderer.Copy(textureAtlas, &playerSrcRect, &sdl.Rect{int32(newLevel.Player.X)*32 + offsetX, int32(newLevel.Player.Y)*32 + offsetY, 32, 32})
 	isInputTaken := game.HandleInput(ui.input.currKeyState, ui.input.prevKeyState, newLevel)
+
 	// for the sake of TURN BASED Playing ability
 	if isInputTaken {
 		//fmt.Println("monster updated")
