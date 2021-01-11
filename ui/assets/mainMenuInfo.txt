@@ -1,2 +1,8 @@
+
 DISCLAIMER: This game is currently under development
-and still in early beta, there may be bugs
+and still in early beta, there will be bugs
+
+All coding done by Mehmet Demirci and Hakkı Ulkü
+using GO and SDL2
+
+Game has universal turn based role play mechanics
