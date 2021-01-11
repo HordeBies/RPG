@@ -54,8 +54,8 @@ func createMainMenu(ui *UI2d) {
 
 	ui.mainMenu.infoTab = createOnePixel(0, 0, 0, 180)
 	ui.mainMenu.infoTab.SetBlendMode(sdl.BLENDMODE_BLEND)
-	ui.mainMenu.infoStr = append(ui.mainMenu.infoStr, getTextTexture("DenemeDeneme", sdl.Color{255, 255, 255, 255}))
-	ui.mainMenu.infoStrLen = append(ui.mainMenu.infoStrLen, 12)
+	ui.mainMenu.infoStr = append(ui.mainMenu.infoStr, getTextTexture("Programing Languages Final Project", sdl.Color{255, 255, 255, 255}))
+	ui.mainMenu.infoStrLen = append(ui.mainMenu.infoStrLen, 34)
 	//ui.mainMenu.infoStr[0].SetBlendMode(sdl.BLENDMODE_BLEND)
 
 	file, err := os.Open("ui/assets/mainMenuInfo.txt")

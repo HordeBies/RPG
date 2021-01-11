@@ -256,12 +256,12 @@ func showEditLevel(ui *UI2d) {
 			}
 		}
 	}
-	relativeX := ui.editMenu.relativeX
-	relativeY := ui.editMenu.relativeY
-	for _, intf := range ui.background.entities {
-		obj := intf.(entityInterface)
-		renderer.Copy(textureAtlas, obj.getRect(), &sdl.Rect{int32(obj.getX() + relativeX), int32(obj.getY() + relativeY), 32, 32})
-	}
+	// relativeX := ui.editMenu.relativeX
+	// relativeY := ui.editMenu.relativeY
+	// for _, intf := range ui.background.entities {
+	// 	obj := intf.(entityInterface)
+	// 	renderer.Copy(textureAtlas, obj.getRect(), &sdl.Rect{int32(obj.getX() + relativeX), int32(obj.getY() + relativeY), 32, 32})
+	// }
 }
 
 func editMenuMiniMap(ui *UI2d) {
