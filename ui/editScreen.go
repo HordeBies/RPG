@@ -108,7 +108,7 @@ func editTile(ui *UI2d) {
 		x := int(math.Floor(float64(ui.input.x)/32)) + ui.editMenu.startX
 		y := int(math.Floor(float64(ui.input.y)/32)) + ui.editMenu.starY
 		l := getTileType()
-		if ui.background.dstRect[y][x] == nil || l == 0 {
+		if ui.background.dstRect[y][x] != nil && l == 0 {
 			ui.background.srcRect[y][x] = &textureIndex[editingTile][rand.Intn(len(textureIndex[editingTile]))]
 			ui.background.dstRect[y][x] = &sdl.Rect{X: int32(x) * 32, Y: int32(y) * 32, W: 32, H: 32}
 			// add editing tile to the map
@@ -293,7 +293,7 @@ func updateEditScale(ui *UI2d) {
 
 func editMenu(ui *UI2d) stateFunc {
 	if ui.input.currKeyState[sdl.SCANCODE_S] == 0 && ui.input.prevKeyState[sdl.SCANCODE_S] != 0 {
-		go game.Save(globalLevel)
+		go game.Save2(GlobalLevel2)
 		fmt.Println("saving done")
 	}
 	checkEditingTileChange(ui)

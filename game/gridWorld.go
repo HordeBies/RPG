@@ -74,39 +74,25 @@ func Save(level *Level) {
 	entityFile.Close()
 }
 
-// func Save2(level *Level2) {
-// 	gw := level.GridWorld
-
-// 	file, err := os.OpenFile("game/maps/"+level.LevelName+".map", os.O_RDWR, 0644)
-// 	if err != nil {
-// 		panic(err)
-// 	}
-// 	file.Truncate(0)
-// 	file.Seek(0, 0)
-// 	for y := range gw.Rows {
-// 		for x := range gw.Rows[y].Grids {
-// 			if gw.Rows[y].Grids[x].Background != Blank {
-// 				file.WriteString(gw.Rows[y].Grids[x].Background.toString())
-// 			} else {
-// 				file.WriteString(" ")
-// 			}
-// 		}
-// 		file.WriteString("\n")
-// 	}
-// 	file.Close()
-
-// 	entityFile, err := os.Create("game/maps/" + level.LevelName + "Entities.map")
-// 	if err != nil {
-// 		panic(err)
-// 	}
-// 	entityFile.Truncate(0)
-// 	entityFile.Seek(0, 0)
-// 	for _, obj := range level.Entities {
-// 		entityFile.WriteString(obj.Tile.toString() + " " + strconv.Itoa(obj.X) + "," + strconv.Itoa(obj.Y))
-// 		entityFile.WriteString("\n")
-// 	}
-// 	entityFile.Close()
-// }
+func Save2(level *Level2) {
+	file, err := os.OpenFile(level.FileName, os.O_RDWR, 0644)
+	if err != nil {
+		panic(err)
+	}
+	file.Truncate(0)
+	file.Seek(0, 0)
+	for _, row := range level.Map {
+		for _, t := range row {
+			if t != Blank {
+				file.WriteString(t.ToString())
+			} else {
+				file.WriteString(" ")
+			}
+		}
+		file.WriteString("\n")
+	}
+	file.Close()
+}
 
 func (level *Level) loadLevelFromFile() {
 	filename := level.LevelName
