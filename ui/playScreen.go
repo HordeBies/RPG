@@ -111,11 +111,12 @@ func playMenu(ui *UI2d) stateFunc {
 
 	playerSrcRect := textureIndex['P'][0]
 
-	isInputTaken := game.HandleInput(ui.input.currKeyState, ui.input.prevKeyState, newLevel)
 	renderer.Copy(textureAtlas, &playerSrcRect, &sdl.Rect{int32(newLevel.Player.X)*32 + offsetX, int32(newLevel.Player.Y)*32 + offsetY, 32, 32})
+	isInputTaken := game.HandleInput(ui.input.currKeyState, ui.input.prevKeyState, newLevel)
 
 	// for the sake of TURN BASED Playing ability
 	if isInputTaken {
+		//fmt.Println("monster updated")
 		for _, monster := range GlobalLevel2.Enemies {
 			monster.Update(GlobalLevel2)
 		}
@@ -129,7 +130,7 @@ func playMenu(ui *UI2d) stateFunc {
 		monsterSrcrect := textureIndex[game.Tile(monster.Tile)][0]
 		renderer.Copy(textureAtlas, &monsterSrcrect, &sdl.Rect{int32(monster.X)*32 + offsetX, int32(monster.Y)*32 + offsetY, 32, 32})
 	}
-
+	isInputTaken = false
 	drawHealthBarsEnemy()
 	drawHealthBars(newLevel.Player)
 	drawPods(newLevel, offsetX, offsetY)
