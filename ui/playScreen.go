@@ -133,6 +133,9 @@ func playMenu(ui *UI2d) stateFunc {
 	drawHealthBarsEnemy()
 	drawHealthBars(newLevel.Player)
 	drawPods(newLevel, offsetX, offsetY)
+	if ui.input.currKeyState[sdl.SCANCODE_T] != 0 && ui.input.prevKeyState[sdl.SCANCODE_T] == 0 {
+		currentState = endScreen
+	}
 
 	return determineToken
 }

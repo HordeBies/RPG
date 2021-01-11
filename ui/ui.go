@@ -127,6 +127,7 @@ func getEntity(obj game.Entity) entityInterface {
 		return createChest(obj)
 	case 'm':
 		return createMonster(obj)
+
 	}
 	panic("error")
 }
@@ -339,6 +340,13 @@ func (ui *UI2d) SelectLevel() (*game.Level, bool) {
 
 		if globalLevel != nil {
 			return globalLevel, editBeforeStart
+		}
+
+		if ui.endMenu.isTerminated {
+			return globalLevel, true // with this return value, the infinite loop in the game.Run becomes broken so that game screen ends
+		}
+		if ui.endMenu.isRestarted {
+			return globalLevel, false
 		}
 
 		renderer.Present()

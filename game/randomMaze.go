@@ -223,6 +223,6 @@ func CreateRandomMaze(levelName string, ui GameUI) Level {
 	createEntities(levelName)
 	level := Level{}
 	level.LevelName = levelName
-	level.loadLevelFromFile()
+	level.LoadLevelFromFile()
 	return level
 }

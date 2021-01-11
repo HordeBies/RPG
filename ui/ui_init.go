@@ -8,7 +8,7 @@ import (
 	"github.com/veandco/go-sdl2/ttf"
 )
 
-const winWidth, winHeight = 1280, 720 //800, 600
+const winWidth, winHeight = 800, 600 //1280, 720 //800, 600
 
 type stateFunc func(*UI2d) stateFunc
 

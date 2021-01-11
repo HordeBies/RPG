@@ -29,8 +29,11 @@ func getTile(c rune) (t Tile) {
 		t = ChestO
 	case 'm':
 		t = Monster
+	case 'R':
+		t = Rat
+	case 'S':
+		t = Spider
 	default:
-		fmt.Println(c)
 		panic("unknown gridworld mapping")
 	}
 	return t
@@ -70,7 +73,7 @@ func Save(level *Level) {
 	entityFile.Close()
 }
 
-func (level *Level) loadLevelFromFile() {
+func (level *Level) LoadLevelFromFile() {
 	filename := level.LevelName
 	file, err := os.Open("game/maps/" + filename + ".map")
 	if err != nil {
@@ -151,6 +154,6 @@ func (level *Level) ReLoadTheLevel() *Level {
 	lName := level.LevelName
 	level = &Level{}
 	level.LevelName = lName
-	level.loadLevelFromFile()
+	level.LoadLevelFromFile()
 	return level
 }

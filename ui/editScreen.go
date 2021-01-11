@@ -35,9 +35,9 @@ func getTileType() int {
 	case game.MainCharacter:
 		return 1
 	case game.DoorC, game.DoorO:
-		return 1
+		return 0
 	case game.Spider, game.Rat:
-		return 1
+		return 0
 	default:
 		panic("unknown tile in getTileLayer")
 	}
@@ -64,7 +64,7 @@ func addToGridWorld(x, y int, tile game.Tile) {
 		globalLevel.GridWorld.Rows[y].Grids = append(globalLevel.GridWorld.Rows[y].Grids, game.Grid{Layers: []game.Tile{}})
 		gridX++
 	}
-	if tile == game.Blank || tile == game.DirtFloor || tile == game.StoneWall {
+	if tile == game.Blank || tile == game.DirtFloor || tile == game.StoneWall || tile == game.Rat || tile == game.Spider || tile == game.DoorC || tile == game.DoorO {
 		globalLevel.GridWorld.Rows[y].Grids[x].Background = tile
 	}
 }
@@ -159,7 +159,9 @@ func currTileChangeMenu(ui *UI2d) {
 		}
 		if clickRect.HasIntersection(&sdl.Rect{x, y, 25*1.5 - 0.5, 32 * 1.5}) || clickRect.HasIntersection(&sdl.Rect{x + 24*1.5, y + 4, 55*1.5 - .5, 25 * 1.6}) {
 			go game.Save(globalLevel)
-			currentState = endScreen
+			GlobalLevel2 = game.LoadLevelFromFile2("./game/maps/" + globalLevel.LevelName + ".map")
+			currentState = playScreen
+
 		}
 	}
 }

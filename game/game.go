@@ -277,6 +277,10 @@ func (tile Tile) toString() string {
 		return "C"
 	case ChestO:
 		return "c"
+	case Rat:
+		return "R"
+	case Spider:
+		return "S"
 	// case Monster:
 	// 	return "m"
 	default:
@@ -288,7 +292,7 @@ func createPreviews(ui GameUI) {
 	for levelindex := 1; levelindex <= 4; levelindex++ {
 		level := Level{}
 		level.LevelName = "level" + strconv.Itoa(levelindex)
-		level.loadLevelFromFile()
+		level.LoadLevelFromFile()
 		ui.AddPreview(level)
 	}
 }
@@ -304,7 +308,7 @@ func Run(ui GameUI) {
 		if level == nil {
 			return
 		}
-		level.loadLevelFromFile()
+		level.LoadLevelFromFile()
 		isReplayed = ui.Draw(level, editBeforeStart)
 	}
 }
