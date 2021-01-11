@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math"
 	"math/rand"
+	"os"
 
 	"github.com/BiesGo/sdlWorkSpace/rpg/game"
 	"github.com/veandco/go-sdl2/sdl"
@@ -11,6 +12,7 @@ import (
 
 var editingTile game.Tile = game.DirtFloor
 
+// controlling the tile change menu with the numbers
 func checkEditingTileChange(ui *UI2d) {
 	if ui.input.currKeyState[sdl.SCANCODE_1] != 0 && ui.input.prevKeyState[sdl.SCANCODE_1] == 0 {
 		editingTile = editingTileSlice[0]
@@ -33,7 +35,7 @@ func getTileType() int {
 	case game.StoneWall:
 		return 0
 	case game.MainCharacter:
-		return 1
+		return 0
 	case game.DoorC, game.DoorO:
 		return 0
 	case game.Spider, game.Rat:
@@ -64,9 +66,41 @@ func addToGridWorld(x, y int, tile game.Tile) {
 		globalLevel.GridWorld.Rows[y].Grids = append(globalLevel.GridWorld.Rows[y].Grids, game.Grid{Layers: []game.Tile{}})
 		gridX++
 	}
-	if tile == game.Blank || tile == game.DirtFloor || tile == game.StoneWall || tile == game.Rat || tile == game.Spider || tile == game.DoorC || tile == game.DoorO {
+	if tile == game.Blank || tile == game.DirtFloor || tile == game.StoneWall {
 		globalLevel.GridWorld.Rows[y].Grids[x].Background = tile
 	}
+}
+
+//addTileToTheMap adds the current editing tile to the current GlobalLevel2
+func addTileToTheMap(x, y int, editingTile game.Tile) {
+	fmt.Println(x, y, editingTile)
+	for Y, row := range GlobalLevel2.Map {
+		for X := range row {
+			if x == X && y == Y {
+				GlobalLevel2.Map[y][x] = editingTile
+				fmt.Println("Editing tile is added the place")
+			}
+		}
+	}
+
+	file, err := os.OpenFile(GlobalLevel2.FileName, os.O_RDWR, 0644)
+	if err != nil {
+		panic(err)
+	}
+	file.Truncate(0)
+	file.Seek(0, 0)
+	for _, row := range GlobalLevel2.Map {
+		for _, t := range row {
+			if t != game.Blank {
+				file.WriteString(t.ToString())
+			} else {
+				file.WriteString(" ")
+			}
+		}
+		file.WriteString("\n")
+	}
+	file.Close()
+
 }
 
 func editTile(ui *UI2d) {
@@ -74,9 +108,13 @@ func editTile(ui *UI2d) {
 		x := int(math.Floor(float64(ui.input.x)/32)) + ui.editMenu.startX
 		y := int(math.Floor(float64(ui.input.y)/32)) + ui.editMenu.starY
 		l := getTileType()
-		if ui.background.dstRect[y][x] == nil && l == 0 {
+		if ui.background.dstRect[y][x] == nil || l == 0 {
 			ui.background.srcRect[y][x] = &textureIndex[editingTile][rand.Intn(len(textureIndex[editingTile]))]
 			ui.background.dstRect[y][x] = &sdl.Rect{X: int32(x) * 32, Y: int32(y) * 32, W: 32, H: 32}
+			// add editing tile to the map
+			GlobalLevel2.Map[y][x] = editingTile
+			go addTileToTheMap(x, y, editingTile)
+
 			addToGridWorld(x, y, editingTile)
 		} else if l == 1 && !ui.input.prevLeftButton {
 			globalLevel.Entities = append(globalLevel.Entities, game.Entity{game.Pos{x * 32, y * 32}, editingTile})
@@ -85,7 +123,7 @@ func editTile(ui *UI2d) {
 
 	}
 
-	if ui.input.rightButton && !ui.input.prevRightButton { //&&
+	if ui.input.rightButton && !ui.input.prevRightButton {
 		isDeleted := false
 		x := int(math.Floor(float64(ui.input.x)/32)) + ui.editMenu.startX
 		y := int(math.Floor(float64(ui.input.y)/32)) + ui.editMenu.starY
@@ -119,6 +157,7 @@ func editTile(ui *UI2d) {
 	}
 }
 
+// currTileChangeMenu runs when you press LShift
 func currTileChangeMenu(ui *UI2d) {
 
 	var w int = 240
@@ -153,15 +192,15 @@ func currTileChangeMenu(ui *UI2d) {
 		clickRect := &sdl.Rect{int32(ui.input.x), int32(ui.input.y), 1, 1}
 		for i, rect := range tileTabDst {
 			if clickRect.HasIntersection(rect) {
+				fmt.Println("Editing tile is set")
 				editingTile = editingTileSlice[i]
 				break
 			}
 		}
 		if clickRect.HasIntersection(&sdl.Rect{x, y, 25*1.5 - 0.5, 32 * 1.5}) || clickRect.HasIntersection(&sdl.Rect{x + 24*1.5, y + 4, 55*1.5 - .5, 25 * 1.6}) {
-			go game.Save(globalLevel)
-			GlobalLevel2 = game.LoadLevelFromFile2("./game/maps/" + globalLevel.LevelName + ".map")
+			game.Save2(GlobalLevel2)
+			GlobalLevel2 = game.LoadLevelFromFile2(GlobalLevel2.FileName)
 			currentState = playScreen
-
 		}
 	}
 }
@@ -219,12 +258,12 @@ func showEditLevel(ui *UI2d) {
 			}
 		}
 	}
-	relativeX := ui.editMenu.relativeX
-	relativeY := ui.editMenu.relativeY
-	for _, intf := range ui.background.entities {
-		obj := intf.(entityInterface)
-		renderer.Copy(textureAtlas, obj.getRect(), &sdl.Rect{int32(obj.getX() + relativeX), int32(obj.getY() + relativeY), 32, 32})
-	}
+	// relativeX := ui.editMenu.relativeX
+	// relativeY := ui.editMenu.relativeY
+	// for _, intf := range ui.background.entities {
+	// 	obj := intf.(entityInterface)
+	// 	renderer.Copy(textureAtlas, obj.getRect(), &sdl.Rect{int32(obj.getX() + relativeX), int32(obj.getY() + relativeY), 32, 32})
+	// }
 }
 
 func editMenuMiniMap(ui *UI2d) {
@@ -255,9 +294,9 @@ func updateEditScale(ui *UI2d) {
 }
 
 func editMenu(ui *UI2d) stateFunc {
-	//fmt.Println("edit Menu")
 	if ui.input.currKeyState[sdl.SCANCODE_S] == 0 && ui.input.prevKeyState[sdl.SCANCODE_S] != 0 {
-		go game.Save(globalLevel)
+		game.Save2(GlobalLevel2)
+		GlobalLevel2 = game.LoadLevelFromFile2(GlobalLevel2.FileName)
 		fmt.Println("saving done")
 	}
 	checkEditingTileChange(ui)
@@ -276,6 +315,11 @@ func editMenu(ui *UI2d) stateFunc {
 	} else if ui.input.currKeyState[sdl.SCANCODE_TAB] == 0 {
 		updateEditRelativity(ui)
 		editTile(ui)
+	}
+
+	if ui.input.currKeyState[sdl.SCANCODE_P] != 0 && ui.input.prevKeyState[sdl.SCANCODE_P] == 0 {
+		GlobalLevel2 = game.LoadLevelFromFile2(GlobalLevel2.FileName)
+		currentState = playScreen
 	}
 
 	return determineToken

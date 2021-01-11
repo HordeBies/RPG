@@ -172,14 +172,14 @@ func showPreview(level *layer, ui *UI2d) {
 			}
 		}
 	}
-	relativeX := ui.selectMenu.relativeX
-	relativeY := ui.selectMenu.relativeY
-	for _, intf := range level.entities {
-		obj := intf.(entityInterface)
-		if obj.getX()+relativeX+150 > 150 {
-			renderer.Copy(textureAtlas, obj.getRect(), &sdl.Rect{150 + int32(obj.getX()+relativeX), int32(obj.getY() + relativeY), 32, 32})
-		}
-	}
+	// relativeX := ui.selectMenu.relativeX
+	// relativeY := ui.selectMenu.relativeY
+	// for _, intf := range level.entities {
+	// 	obj := intf.(entityInterface)
+	// 	if obj.getX()+relativeX+150 > 150 {
+	// 		renderer.Copy(textureAtlas, obj.getRect(), &sdl.Rect{150 + int32(obj.getX()+relativeX), int32(obj.getY() + relativeY), 32, 32})
+	// 	}
+	// }
 }
 
 func selectMenuMiniMap(level *layer, ui *UI2d) {

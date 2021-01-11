@@ -158,6 +158,7 @@ type Level2 struct {
 	Enemies              map[Pos]*Enemy
 	EnemiesForHealthBars []*Enemy
 	HealthPots           map[Pos]*HealthPot
+	FileName             string
 	//Debug    map[Pos]bool
 }
 
@@ -216,7 +217,7 @@ func LoadLevelFromFile2(fileName string) *Level2 {
 				t = DirtFloor
 			case '|':
 				t = DoorC
-			case '/':
+			case '-':
 				t = DoorO
 			case 'P':
 				level.Player.X = x
@@ -229,6 +230,7 @@ func LoadLevelFromFile2(fileName string) *Level2 {
 				level.Enemies[Pos{x, y}] = NewSpider(Pos{x, y})
 				t = Pending
 			default:
+				fmt.Printf("%c\n", c)
 				panic("Invalid character in the map file")
 			}
 			level.Map[y][x] = t
@@ -244,6 +246,7 @@ func LoadLevelFromFile2(fileName string) *Level2 {
 			}
 		}
 	}
+	level.FileName = fileName
 
 	return level
 }
@@ -252,14 +255,14 @@ func (level *Level) ToString() {
 	gw := level.GridWorld
 	for y := range gw.Rows {
 		for x := range gw.Rows[y].Grids {
-			fmt.Print(gw.Rows[y].Grids[x].Background.toString())
+			fmt.Print(gw.Rows[y].Grids[x].Background.ToString())
 		}
 		fmt.Println("")
 	}
 }
 
 //TODO check this func to be able to print the map i think... ?
-func (tile Tile) toString() string {
+func (tile Tile) ToString() string {
 	switch tile {
 	case StoneWall:
 		return "#"
@@ -277,12 +280,12 @@ func (tile Tile) toString() string {
 		return "C"
 	case ChestO:
 		return "c"
+	case Monster:
+		return "m"
 	case Rat:
 		return "R"
 	case Spider:
 		return "S"
-	// case Monster:
-	// 	return "m"
 	default:
 		panic("unknown toString tile")
 	}
@@ -292,7 +295,7 @@ func createPreviews(ui GameUI) {
 	for levelindex := 1; levelindex <= 4; levelindex++ {
 		level := Level{}
 		level.LevelName = "level" + strconv.Itoa(levelindex)
-		level.LoadLevelFromFile()
+		level.loadLevelFromFile()
 		ui.AddPreview(level)
 	}
 }
@@ -308,7 +311,7 @@ func Run(ui GameUI) {
 		if level == nil {
 			return
 		}
-		level.LoadLevelFromFile()
+		level.loadLevelFromFile()
 		isReplayed = ui.Draw(level, editBeforeStart)
 	}
 }

@@ -91,9 +91,13 @@ func playMenu(ui *UI2d) stateFunc {
 	} else if newLevel.Player.Y < centerY-limit {
 		centerY--
 	}
+	var offsetX int32
+	var offsetY int32
+	lastOffsetX := offsetX
+	lastOffsetY := offsetY
 
-	offsetX := int32((winWidth / 2) - centerX*32)
-	offsetY := int32((winHeight / 2) - centerY*32)
+	offsetX = int32((winWidth / 2) - centerX*32)
+	offsetY = int32((winHeight / 2) - centerY*32)
 
 	for y, row := range newLevel.Map {
 		for x, tile := range row {
@@ -111,12 +115,13 @@ func playMenu(ui *UI2d) stateFunc {
 
 	playerSrcRect := textureIndex['P'][0]
 
-	renderer.Copy(textureAtlas, &playerSrcRect, &sdl.Rect{int32(newLevel.Player.X)*32 + offsetX, int32(newLevel.Player.Y)*32 + offsetY, 32, 32})
+	if lastOffsetX != offsetX || lastOffsetY != offsetY {
+		renderer.Copy(textureAtlas, &playerSrcRect, &sdl.Rect{int32(newLevel.Player.X)*32 + offsetX, int32(newLevel.Player.Y)*32 + offsetY, 32, 32})
+	}
 	isInputTaken := game.HandleInput(ui.input.currKeyState, ui.input.prevKeyState, newLevel)
 
 	// for the sake of TURN BASED Playing ability
 	if isInputTaken {
-		//fmt.Println("monster updated")
 		for _, monster := range GlobalLevel2.Enemies {
 			monster.Update(GlobalLevel2)
 		}
@@ -130,11 +135,13 @@ func playMenu(ui *UI2d) stateFunc {
 		monsterSrcrect := textureIndex[game.Tile(monster.Tile)][0]
 		renderer.Copy(textureAtlas, &monsterSrcrect, &sdl.Rect{int32(monster.X)*32 + offsetX, int32(monster.Y)*32 + offsetY, 32, 32})
 	}
-	isInputTaken = false
+
 	drawHealthBarsEnemy()
 	drawHealthBars(newLevel.Player)
 	drawPods(newLevel, offsetX, offsetY)
 	if ui.input.currKeyState[sdl.SCANCODE_T] != 0 && ui.input.prevKeyState[sdl.SCANCODE_T] == 0 {
+		// game.Save2(GlobalLevel2)
+		// GlobalLevel2 = game.LoadLevelFromFile2(newLevel.FileName)
 		currentState = endScreen
 	}
 

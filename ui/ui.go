@@ -127,8 +127,10 @@ func getEntity(obj game.Entity) entityInterface {
 		return createChest(obj)
 	case 'm':
 		return createMonster(obj)
-
+	case 'R', 'S':
+		return createEnemy(obj)
 	}
+
 	panic("error")
 }
 
@@ -281,6 +283,7 @@ func (ui *UI2d) Draw(level *game.Level, startingState bool) bool {
 		currentState = endScreen
 	}
 	globalLevel = level
+	GlobalLevel2 = game.LoadLevelFromFile2("./game/maps/" + level.LevelName + ".map")
 	ui.background = layer{}
 
 	createLayers(level, ui)
@@ -314,8 +317,6 @@ func (ui *UI2d) Draw(level *game.Level, startingState bool) bool {
 		}
 		if elapsedTime < 16 {
 			sdl.Delay(uint32(16 - elapsedTime))
-		} else {
-
 		}
 	}
 }
@@ -328,6 +329,7 @@ func (ui *UI2d) SelectLevel() (*game.Level, bool) {
 
 	//TODO ELAPSED TIME IS COMMENTED OUT FROM THE CODE becasue when player moves there was happenening a bad delay on tiles ????
 
+	//start := time.Now()
 	for {
 		currTime := time.Now()
 		for event := sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
@@ -343,22 +345,22 @@ func (ui *UI2d) SelectLevel() (*game.Level, bool) {
 		}
 
 		if ui.endMenu.isTerminated {
-			return globalLevel, true // with this return value, the infinite loop in the game.Run becomes broken so that game screen ends
+			return globalLevel, false // with this return value, the infinite loop in the game.Run becomes broken so that game screen ends
 		}
 		if ui.endMenu.isRestarted {
-			return globalLevel, false
+			return globalLevel, true
 		}
 
 		renderer.Present()
 
 		ui.input.updateKeyboardState()
 		ui.input.updateMouseState()
-
 		elapsedTime := time.Since(currTime).Milliseconds()
+		if elapsedTime > 10 {
+			fmt.Println(elapsedTime)
+		}
 		if elapsedTime < 16 {
 			sdl.Delay(uint32(16 - elapsedTime))
-		} else {
-			fmt.Println("elapsed time->", elapsedTime)
 		}
 		sdl.Delay(1)
 	}
